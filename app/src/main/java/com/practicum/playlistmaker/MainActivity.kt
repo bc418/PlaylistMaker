@@ -10,28 +10,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        /*
-        val imageClickListener: View.OnClickListener = object : View.OnClickListener {
-            override fun onClick(v: View?) {
-                Toast.makeText(this@MainActivity, "Здесь какой-то текст. Поиск", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-
-        val searchImage = findViewById<LinearLayout>(R.id.button_search)
-        searchImage.setOnClickListener (imageClickListener)
-
-        val mediaImage = findViewById<LinearLayout>(R.id.button_media)
-        mediaImage.setOnClickListener {
-            Toast.makeText(this@MainActivity, "Здесь какой-то текст. Медиа", Toast.LENGTH_SHORT).show()
-        }
-
-        val settingsImage = findViewById<LinearLayout>(R.id.button_settings)
-        settingsImage.setOnClickListener {
-            Toast.makeText(this@MainActivity, "Здесь какой-то текст. Настройки", Toast.LENGTH_SHORT).show()
-        }
-        */
-
         val settingsButton = findViewById<LinearLayout>(R.id.button_settings)
 
         settingsButton.setOnClickListener {
@@ -52,7 +30,6 @@ class MainActivity : AppCompatActivity() {
             val displayIntent = Intent(this, MediaActivity::class.java)
             startActivity(displayIntent)
         }
-
 
     }
 

@@ -12,13 +12,13 @@
         android:layout_height="wrap_content"
         android:text="@string/app_name"
         android:textColor="@color/white"
-        android:textSize="22sp" />
+        android:textSize="@dimen/primary_text_size" />
 
     <LinearLayout
         android:id="@+id/button_search"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="@dimen/main_layout_height"
+        android:layout_weight="@dimen/main_layout_weight"
         android:layout_marginTop="24dp"
         android:orientation="horizontal"
         android:gravity="center"
@@ -28,26 +28,26 @@
         android:foreground="?attr/selectableItemBackground">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/search_icon" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_search_24" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="@dimen/main_text_margin_start"
             android:text="@string/button_search"
             android:textColor="@color/YPBlack"
-            android:textSize="22sp"
+            android:textSize="@dimen/primary_text_size"
             android:textStyle="bold"/>
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/button_media"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="16dp"
+        android:layout_height="@dimen/main_layout_height"
+        android:layout_weight="@dimen/main_layout_weight"
+        android:layout_marginTop="@dimen/main_layout_margin_top"
         android:orientation="horizontal"
         android:gravity="center"
         android:background="@drawable/button_bg"
@@ -56,26 +56,26 @@
         android:foreground="?attr/selectableItemBackground">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/media_icon" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_media_24" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="@dimen/main_text_margin_start"
             android:text="@string/button_media"
             android:textColor="@color/YPBlack"
-            android:textSize="22sp"
+            android:textSize="@dimen/primary_text_size"
             android:textStyle="bold"/>
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/button_settings"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="16dp"
+        android:layout_height="@dimen/main_layout_height"
+        android:layout_weight="@dimen/main_layout_weight"
+        android:layout_marginTop="@dimen/main_layout_margin_top"
         android:layout_marginBottom="28dp"
         android:orientation="horizontal"
         android:gravity="center"
@@ -85,17 +85,17 @@
         android:foreground="?attr/selectableItemBackground">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/settings_icon" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_settings_24" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="@dimen/main_text_margin_start"
             android:text="@string/button_settings"
             android:textColor="@color/YPBlack"
-            android:textSize="22sp"
+            android:textSize="@dimen/primary_text_size"
             android:textStyle="bold"/>
     </LinearLayout>
 </LinearLayout>
