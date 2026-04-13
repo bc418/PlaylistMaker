@@ -1,17 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/search_act"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SettingsActivity">
+    android:orientation="vertical"
+    android:background="?attr/colorSecondary">
 
-    <TextView
-        android:id="@+id/message_search"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:text="Вы перешли на экран поиска"/>
+    <LinearLayout
+        style="@style/SettingsLinearLayoutStyle"
+        android:layout_height="56dp"
+        android:clickable="false"
+        android:focusable="false">
 
-</FrameLayout>
+        <ImageButton
+            android:id="@+id/button_search_back"
+            style="@style/SettingsImageViewStyle"
+            android:src="@drawable/ic_back_arrow_24" />
+
+        <TextView
+            style="@style/SettingsTextViewStyle"
+            android:layout_marginStart="@dimen/settings_padding_start"
+            android:text="@string/button_search"
+            android:textSize="@dimen/primary_text_size"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        style="@style/SearchLinearLayoutStyle">
+
+        <LinearLayout
+            android:id="@+id/searchContainer"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_search_field">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:src="@drawable/ic_search_16" />
+
+            <EditText
+                android:id="@+id/searchInputEditText"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="40dp"
+                android:layout_marginTop="8.5dp"
+                android:layout_marginBottom="8.5dp"
+                android:background="?attr/colorOnBackground"
+                android:hint="@string/hint_search"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@color/YPBlack"
+                android:textColorHint="?attr/hintTextColor"
+                android:textSize="@dimen/secondary_text_size"/>
+
+            <ImageView
+                android:id="@+id/searchClearIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="?attr/colorOnBackground"
+                android:src="@drawable/ic_search_clear_16"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
