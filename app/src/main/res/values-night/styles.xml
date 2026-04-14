@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="MainButtonStyle" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/main_layout_height</item>
+        <item name="android:layout_weight">@dimen/main_layout_weight</item>
+        <item name="android:textSize">@dimen/primary_text_size</item>
+        <item name="android:textColor">@color/YPBlack</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="backgroundTint">@color/white</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="iconTint">@null</item>
+    </style>
+
+    <style name="MainImageViewStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="MainTextViewStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">@dimen/main_text_margin_start</item>
+        <item name="android:textColor">@color/YPBlack</item>
+        <item name="android:textSize">@dimen/primary_text_size</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+    </style>
+
+    <style name="SettingsImageViewStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/YPBlack</item>
+    </style>
+
+    <style name="SettingsSwitchStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:thumbTint">@color/YPBlue</item>
+        <item name="android:trackTint">#9FBBF3</item>
+    </style>
+
+    <style name="SettingsLinearLayoutStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/settings_layout_height</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:paddingStart">@dimen/settings_padding_start</item>
+        <item name="android:paddingEnd">@dimen/settings_padding_end</item>
+    </style>
+
+    <style name="SettingsTextViewStyle">
+        <item name="android:layout_width">@dimen/settings_text_width</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">@dimen/settings_text_weight</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/secondary_text_size</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+    </style>
+
+</resources>

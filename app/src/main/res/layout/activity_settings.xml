@@ -1,128 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/settings_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@android:color/white">
+    android:background="?attr/colorSecondary">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        style="@style/SettingsLinearLayoutStyle"
         android:layout_height="56dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingStart="@dimen/settings_padding_start"
-        android:paddingEnd="@dimen/settings_padding_end">
+        android:clickable="false"
+        android:focusable="false">
 
         <ImageButton
             android:id="@+id/button_settings_back"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/white"
+            style="@style/SettingsImageViewStyle"
             android:src="@drawable/ic_back_arrow_24" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/SettingsTextViewStyle"
             android:layout_marginStart="@dimen/settings_padding_start"
             android:text="@string/button_settings"
-            android:textColor="@color/YPBlack"
             android:textSize="@dimen/primary_text_size"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/settings_layout_height"
         android:layout_marginTop="24dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingStart="@dimen/settings_padding_start"
-        android:paddingEnd="@dimen/settings_padding_end">
+        style="@style/SettingsLinearLayoutStyle"
+        android:clickable="false"
+        android:focusable="false">
 
         <TextView
-            android:layout_width="@dimen/settings_text_width"
-            android:layout_height="wrap_content"
-            android:layout_weight="@dimen/settings_text_weight"
             android:text="@string/dark_theme"
-            android:textColor="@color/YPBlack"
-            android:textSize="@dimen/secondary_text_size" />
+            style="@style/SettingsTextViewStyle"/>
 
         <Switch
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            style="@style/SettingsSwitchStyle"/>
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/settings_layout_height"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:clickable="true"
-        android:focusable="true"
-        android:paddingStart="@dimen/settings_padding_start"
-        android:paddingEnd="@dimen/settings_padding_end">
+        android:id="@+id/button_settings_share"
+        style="@style/SettingsLinearLayoutStyle">
 
         <TextView
-            android:layout_width="@dimen/settings_text_width"
-            android:layout_height="wrap_content"
-            android:layout_weight="@dimen/settings_text_weight"
             android:text="@string/share_app"
-            android:textColor="@android:color/black"
-            android:textSize="@dimen/secondary_text_size" />
+            style="@style/SettingsTextViewStyle"/>
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_share_24"/>
+            style="@style/SettingsImageViewStyle"
+            android:src="@drawable/ic_share_24" />
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/settings_layout_height"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:clickable="true"
-        android:focusable="true"
-        android:paddingStart="@dimen/settings_padding_start"
-        android:paddingEnd="@dimen/settings_padding_end">
+        android:id="@+id/button_settings_support"
+        style="@style/SettingsLinearLayoutStyle">
 
         <TextView
-            android:layout_width="@dimen/settings_text_width"
-            android:layout_height="wrap_content"
-            android:layout_weight="@dimen/settings_text_weight"
             android:text="@string/support"
-            android:textColor="@color/YPBlack"
-            android:textSize="@dimen/secondary_text_size" />
+            style="@style/SettingsTextViewStyle"/>
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/SettingsImageViewStyle"
             android:src="@drawable/ic_support_24" />
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/settings_layout_height"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:clickable="true"
-        android:focusable="true"
-        android:paddingStart="@dimen/settings_padding_start"
-        android:paddingEnd="@dimen/settings_padding_end">
+        android:id="@+id/button_settings_agreement"
+        style="@style/SettingsLinearLayoutStyle">
 
         <TextView
-            android:layout_width="@dimen/settings_text_width"
-            android:layout_height="wrap_content"
-            android:layout_weight="@dimen/settings_text_weight"
             android:text="@string/user_agreement"
-            android:textColor="@color/YPBlack"
-            android:textSize="@dimen/secondary_text_size" />
+            style="@style/SettingsTextViewStyle"/>
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_forward_arrow_24"/>
+            style="@style/SettingsImageViewStyle"
+            android:src="@drawable/ic_forward_arrow_24" />
     </LinearLayout>
 
 </LinearLayout>
