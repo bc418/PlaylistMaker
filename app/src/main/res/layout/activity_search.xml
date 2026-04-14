@@ -50,33 +50,39 @@
                 android:layout_marginBottom="10dp"
                 android:src="@drawable/ic_search_16" />
 
-            <EditText
-                android:id="@+id/searchInputEditText"
+            <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="40dp"
-                android:layout_marginTop="8.5dp"
-                android:layout_marginBottom="8.5dp"
-                android:background="?attr/colorOnBackground"
-                android:hint="@string/hint_search"
-                android:inputType="text"
-                android:maxLines="1"
-                android:textColor="@color/YPBlack"
-                android:textColorHint="?attr/hintTextColor"
-                android:textSize="@dimen/secondary_text_size"/>
+                android:layout_weight="1">
+                <EditText
+                    android:id="@+id/searchInputEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/hint_search"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8.5dp"
+                    android:layout_marginBottom="8.5dp"
+                    android:paddingEnd="40dp"
+                    android:textColor="@color/YPBlack"
+                    android:textColorHint="?attr/hintTextColor"
+                    android:textSize="@dimen/secondary_text_size" />
 
-            <ImageView
-                android:id="@+id/searchClearIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="12dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="?attr/colorOnBackground"
-                android:src="@drawable/ic_search_clear_16"
-                android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/searchClearIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/ic_search_clear_16"
+                    android:visibility="gone"  />
+            </FrameLayout>
+
 
         </LinearLayout>
 

@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="MainLinearLayoutStyle">
+    <style name="MainButtonStyle" parent="Widget.MaterialComponents.Button.UnelevatedButton">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/main_layout_height</item>
         <item name="android:layout_weight">@dimen/main_layout_weight</item>
-        <item name="android:orientation">horizontal</item>
-        <item name="android:gravity">center</item>
-        <item name="android:background">@drawable/button_bg</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-        <item name="android:foreground">?attr/selectableItemBackground</item>
-        <item name="android:layout_marginTop">@dimen/main_layout_margin_top</item>
+        <item name="android:textSize">@dimen/primary_text_size</item>
+        <item name="android:textColor">@color/YPBlack</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="backgroundTint">@color/white</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="iconTint">@null</item>
     </style>
 
     <style name="MainImageViewStyle">
@@ -69,8 +68,7 @@
         <item name="android:gravity">center_vertical</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
-        <item name="android:paddingStart">@dimen/settings_padding_start</item>
-        <item name="android:paddingEnd">@dimen/settings_padding_end</item>
+
     </style>
 
 </resources>
