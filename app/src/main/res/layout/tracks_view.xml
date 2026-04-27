@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    style="@style/SettingsLinearLayoutStyle"
+    android:paddingStart="13dp"
+    android:paddingEnd="12dp">
+
+    <ImageView
+        android:id="@+id/trackArtwork"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/ic_media_24"
+        android:scaleType="centerCrop"/>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="14dp"
+        android:layout_marginEnd="8dp">
+
+        <TextView
+            android:id="@+id/trackName"
+            tools:text="Название трека"
+            style="@style/TracksViewTextStyle"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/artistName"
+                tools:text="Артист"
+                style="@style/TracksViewTextStyleSecondary"
+                />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_point_divider_13"
+                />
+
+            <TextView
+                android:id="@+id/trackTime"
+                tools:text="0:00"
+                style="@style/TracksViewTextStyleSecondary"
+                />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ImageView
+        style="@style/SettingsImageViewStyle"
+        android:src="@drawable/ic_forward_arrow_24"
+        />
+
+</LinearLayout>
