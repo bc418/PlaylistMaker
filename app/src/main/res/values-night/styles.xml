@@ -37,8 +37,8 @@
     <style name="SettingsSwitchStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:thumbTint">@color/YPBlue</item>
-        <item name="android:trackTint">#9FBBF3</item>
+        <item name="android:thumbTint">@color/switch_thumb_color</item>
+        <item name="android:trackTint">@color/switch_track_color</item>
     </style>
 
     <style name="SettingsLinearLayoutStyle">
@@ -59,6 +59,26 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">@dimen/secondary_text_size</item>
         <item name="android:fontFamily">@font/ys_display_regular</item>
+    </style>
+
+    <style name="TracksViewTextStyle">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:textSize">@dimen/secondary_text_size</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="TracksViewTextStyleSecondary">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/tertiary_text_size</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
 </resources>

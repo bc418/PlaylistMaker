@@ -10,7 +10,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.core.widget.doOnTextChanged
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class SearchActivity : AppCompatActivity() {
     private var searchText: String = ""
@@ -20,9 +23,11 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_search)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.search_act)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+
+        val root = findViewById<View>(R.id.root_activity_search)
+        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+            val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
+            view.updatePadding(top = statusBars.top)
             insets
         }
 
@@ -46,6 +51,17 @@ class SearchActivity : AppCompatActivity() {
             searchText = s?.toString() ?: ""
             clearButton.visibility = if (s.isNullOrEmpty()) View.GONE else View.VISIBLE
         }
+
+
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        val trackRepository = MockTrackRepository()
+
+        val tracksAdapter = TracksAdapter(trackRepository.getTrackRepository())
+        recyclerView.adapter = tracksAdapter
+
+
     }
 
     private fun hideKeyboard(view: View) {
