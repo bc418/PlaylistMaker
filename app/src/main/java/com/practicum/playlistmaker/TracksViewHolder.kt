@@ -26,7 +26,7 @@ class TracksViewHolder (itemView: View): RecyclerView.ViewHolder(itemView) {
             .load(model.artworkUrl100)
             .centerCrop()
             .transform(RoundedCorners(10))
-            .placeholder(R.drawable.ic_media_24)
+            .placeholder(R.drawable.ic_search_placeholder_45)
             .into(trackArtwork)
     }
 
