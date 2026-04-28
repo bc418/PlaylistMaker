@@ -37,8 +37,8 @@
     <style name="SettingsSwitchStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:thumbTint">@color/YPBlue</item>
-        <item name="android:trackTint">#9FBBF3</item>
+        <item name="android:thumbTint">@color/switch_thumb_color</item>
+        <item name="android:trackTint">@color/switch_track_color</item>
     </style>
 
     <style name="SettingsLinearLayoutStyle">
