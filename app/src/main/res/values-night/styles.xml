@@ -81,4 +81,14 @@
         <item name="android:includeFontPadding">false</item>
     </style>
 
+    <style name="SearchTextViewStyle">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:fontFamily">@font/ys_display_medium</item>
+    </style>
+
+    <style name="SearchUpdateButtonStyle">
+        <item name="android:textColor">@color/YPBlack</item>
+        <item name="android:fontFamily">@font/ys_display_medium</item>
+    </style>
+
 </resources>

@@ -2,10 +2,13 @@ package com.practicum.playlistmaker
 
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -14,10 +17,36 @@ import androidx.core.view.updatePadding
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class SearchActivity : AppCompatActivity() {
     private var searchText: String = ""
     private lateinit var inputEditText: EditText
+
+    private lateinit var placeholderContainer: View
+
+
+    private val iTunesBaseUrl = "https://itunes.apple.com/"
+
+    private val retrofit = Retrofit.Builder()
+        .baseUrl(iTunesBaseUrl)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    private val searchTrackService = retrofit.create(SearchTrackApi::class.java)
+
+
+    private val trackRepository = ArrayList<Track>()
+    private val tracksAdapter = TracksAdapter(trackRepository)
+
+    private val trackMapper = TrackMapper()
+
+    private lateinit var connectionErrorContainer: View
+    private lateinit var updateButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +74,8 @@ class SearchActivity : AppCompatActivity() {
             inputEditText.setText("")
             inputEditText.clearFocus()
             hideKeyboard(inputEditText)
+            trackRepository.clear()
+            tracksAdapter.notifyDataSetChanged()
         }
 
         inputEditText.doOnTextChanged { s, _, _, _ ->
@@ -52,16 +83,98 @@ class SearchActivity : AppCompatActivity() {
             clearButton.visibility = if (s.isNullOrEmpty()) View.GONE else View.VISIBLE
         }
 
+        placeholderContainer = findViewById(R.id.placeholderContainer)
+
+        inputEditText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                searchTracks(inputEditText.text.toString())
+            }
+            false
+        }
+
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        val trackRepository = MockTrackRepository()
 
-        val tracksAdapter = TracksAdapter(trackRepository.getTrackRepository())
         recyclerView.adapter = tracksAdapter
 
 
+        connectionErrorContainer = findViewById(R.id.connectionErrorContainer)
+        updateButton = findViewById(R.id.updateButton)
+
+        updateButton.setOnClickListener {
+            val query = inputEditText.text.toString().trim()
+            if (query.isNotEmpty()) {
+                connectionErrorContainer.visibility = View.GONE
+                searchTracks(query)
+            }
+        }
+    }
+
+    private fun searchTracks(text: String) {
+        searchTrackService
+            .search(text)
+            .enqueue(object : Callback<SearchTrackResponse> {
+                override fun onResponse(call: Call<SearchTrackResponse>,
+                                        response: Response<SearchTrackResponse>
+                ) {
+                    if (response.code() == 200) {
+                        trackRepository.clear()
+                        if (response.body()?.results?.isNotEmpty() == true) {
+                            trackRepository.addAll(response.body()?.results!!.map { trackMapper.mapToTrack(it) })
+                            tracksAdapter.notifyDataSetChanged()
+                        }
+                        if (trackRepository.isEmpty()) {
+                            showMessage(getString(R.string.nothing_found), "")
+                        } else {
+                            showMessage("", "")
+                        }
+                    } else {
+                        showMessage(getString(R.string.something_went_wrong), response.code().toString())
+                    }
+
+                }
+
+                override fun onFailure(call: Call<SearchTrackResponse>, t: Throwable) {
+                    showConnectionError(getString(R.string.something_went_wrong), t.message.toString())
+                }
+
+            })
+    }
+
+    private fun showMessage(text: String, additionalMessage: String) {
+
+        if (text.isNotEmpty()) {
+            placeholderContainer.visibility = View.VISIBLE
+            connectionErrorContainer.visibility = View.GONE
+            trackRepository.clear()
+            tracksAdapter.notifyDataSetChanged()
+
+            if (additionalMessage.isNotEmpty()) {
+                Toast.makeText(applicationContext, additionalMessage, Toast.LENGTH_LONG)
+                    .show()
+            }
+        } else {
+            placeholderContainer.visibility = View.GONE
+        }
+    }
+
+    private fun showConnectionError(text: String, additionalMessage: String) {
+
+        if (text.isNotEmpty()) {
+            connectionErrorContainer.visibility = View.VISIBLE
+            placeholderContainer.visibility = View.GONE
+            trackRepository.clear()
+            tracksAdapter.notifyDataSetChanged()
+
+            if (additionalMessage.isNotEmpty()) {
+                Toast.makeText(applicationContext, additionalMessage, Toast.LENGTH_LONG)
+                    .show()
+            }
+        } else {
+            connectionErrorContainer.visibility = View.GONE
+        }
     }
 
     private fun hideKeyboard(view: View) {
