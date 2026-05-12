@@ -3,6 +3,8 @@
     <dimen name="primary_text_size">22sp</dimen>
     <dimen name="secondary_text_size">16sp</dimen>
     <dimen name="tertiary_text_size">11sp</dimen>
+    <dimen name="text_size_19">19sp</dimen>
+    <dimen name="text_size_14">14sp</dimen>
     <dimen name="settings_layout_height">61dp</dimen>
     <dimen name="settings_padding_start">16dp</dimen>
     <dimen name="settings_padding_end">18dp</dimen>
