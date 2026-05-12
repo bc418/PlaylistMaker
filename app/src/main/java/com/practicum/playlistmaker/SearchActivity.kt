@@ -20,8 +20,6 @@ import androidx.recyclerview.widget.RecyclerView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class SearchActivity : AppCompatActivity() {
     private var searchText: String = ""
@@ -29,16 +27,7 @@ class SearchActivity : AppCompatActivity() {
 
     private lateinit var placeholderContainer: View
 
-
-    private val iTunesBaseUrl = "https://itunes.apple.com/"
-
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(iTunesBaseUrl)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-
-    private val searchTrackService = retrofit.create(SearchTrackApi::class.java)
-
+    private val searchTrackService = RetrofitClient.searchTrackService
 
     private val trackRepository = ArrayList<Track>()
     private val tracksAdapter = TracksAdapter(trackRepository)
