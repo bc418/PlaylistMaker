@@ -65,11 +65,22 @@ class SearchActivity : AppCompatActivity() {
             hideKeyboard(inputEditText)
             trackRepository.clear()
             tracksAdapter.notifyDataSetChanged()
+
+            placeholderContainer.visibility = View.GONE
+            connectionErrorContainer.visibility = View.GONE
         }
 
         inputEditText.doOnTextChanged { s, _, _, _ ->
             searchText = s?.toString() ?: ""
             clearButton.visibility = if (s.isNullOrEmpty()) View.GONE else View.VISIBLE
+
+            placeholderContainer.visibility = View.GONE
+            connectionErrorContainer.visibility = View.GONE
+
+            if (s.isNullOrEmpty()) {
+                trackRepository.clear()
+                tracksAdapter.notifyDataSetChanged()
+            }
         }
 
         placeholderContainer = findViewById(R.id.placeholderContainer)
