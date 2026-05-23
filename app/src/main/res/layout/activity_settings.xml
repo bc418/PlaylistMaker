@@ -37,6 +37,7 @@
             style="@style/SettingsTextViewStyle"/>
 
         <Switch
+            android:id="@+id/settings_switch"
             style="@style/SettingsSwitchStyle"/>
     </LinearLayout>
 

@@ -3,7 +3,6 @@ package com.practicum.playlistmaker
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
@@ -26,21 +25,38 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var inputEditText: EditText
 
     private lateinit var placeholderContainer: View
+    private lateinit var connectionErrorContainer: View
+    private lateinit var updateButton: Button
+
+    private lateinit var resultRecyclerView: RecyclerView
+    private lateinit var historyContainer: View
 
     private val searchTrackService = RetrofitClient.searchTrackService
 
     private val trackRepository = ArrayList<Track>()
-    private val tracksAdapter = TracksAdapter(trackRepository)
+    private val historyTrackRepository = ArrayList<Track>()
+
+    private lateinit var searchHistory: SearchHistory
+
+    private val tracksAdapter = TracksAdapter(trackRepository) { track ->
+        searchHistory.addTrack(track)
+    }
+
+    private val historyTracksAdapter = TracksAdapter(historyTrackRepository) { track ->
+        searchHistory.addTrack(track)
+        showHistoryIfNeeded()
+    }
 
     private val trackMapper = TrackMapper()
-
-    private lateinit var connectionErrorContainer: View
-    private lateinit var updateButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_search)
+
+        searchHistory = SearchHistory(
+            getSharedPreferences(SEARCH_HISTORY_PREFERENCES, MODE_PRIVATE)
+        )
 
         val root = findViewById<View>(R.id.root_activity_search)
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
@@ -49,25 +65,34 @@ class SearchActivity : AppCompatActivity() {
             insets
         }
 
-        val searchBackButton = findViewById<ImageButton>(R.id.button_search_back)
+        placeholderContainer = findViewById(R.id.placeholderContainer)
+        connectionErrorContainer = findViewById(R.id.connectionErrorContainer)
+        updateButton = findViewById(R.id.updateButton)
+        historyContainer = findViewById(R.id.historyContainer)
 
+        resultRecyclerView = findViewById(R.id.recyclerView)
+        resultRecyclerView.layoutManager = LinearLayoutManager(this)
+        resultRecyclerView.adapter = tracksAdapter
+
+        val historyRecyclerView = findViewById<RecyclerView>(R.id.historyRecyclerView)
+        historyRecyclerView.layoutManager = LinearLayoutManager(this)
+        historyRecyclerView.adapter = historyTracksAdapter
+
+        val searchBackButton = findViewById<ImageButton>(R.id.button_search_back)
         searchBackButton.setOnClickListener {
             finish()
         }
-
 
         val clearButton = findViewById<ImageView>(R.id.searchClearIcon)
         inputEditText = findViewById(R.id.searchInputEditText)
 
         clearButton.setOnClickListener {
             inputEditText.setText("")
-            inputEditText.clearFocus()
-            hideKeyboard(inputEditText)
             trackRepository.clear()
             tracksAdapter.notifyDataSetChanged()
-
             placeholderContainer.visibility = View.GONE
             connectionErrorContainer.visibility = View.GONE
+            showHistoryIfNeeded()
         }
 
         inputEditText.doOnTextChanged { s, _, _, _ ->
@@ -80,10 +105,19 @@ class SearchActivity : AppCompatActivity() {
             if (s.isNullOrEmpty()) {
                 trackRepository.clear()
                 tracksAdapter.notifyDataSetChanged()
+                showHistoryIfNeeded()
+            } else {
+                hideHistory()
             }
         }
 
-        placeholderContainer = findViewById(R.id.placeholderContainer)
+        inputEditText.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                showHistoryIfNeeded()
+            } else {
+                hideHistory()
+            }
+        }
 
         inputEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -92,16 +126,12 @@ class SearchActivity : AppCompatActivity() {
             false
         }
 
-
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-
-
-        recyclerView.adapter = tracksAdapter
-
-
-        connectionErrorContainer = findViewById(R.id.connectionErrorContainer)
-        updateButton = findViewById(R.id.updateButton)
+        findViewById<Button>(R.id.clearHistoryButton).setOnClickListener {
+            searchHistory.clearHistory()
+            historyTrackRepository.clear()
+            historyTracksAdapter.notifyDataSetChanged()
+            hideHistory()
+        }
 
         updateButton.setOnClickListener {
             val query = inputEditText.text.toString().trim()
@@ -110,14 +140,21 @@ class SearchActivity : AppCompatActivity() {
                 searchTracks(query)
             }
         }
+
+        inputEditText.post {
+            showHistoryIfNeeded()
+        }
     }
 
     private fun searchTracks(text: String) {
+        hideHistory()
+
         searchTrackService
             .search(text)
             .enqueue(object : Callback<SearchTrackResponse> {
-                override fun onResponse(call: Call<SearchTrackResponse>,
-                                        response: Response<SearchTrackResponse>
+                override fun onResponse(
+                    call: Call<SearchTrackResponse>,
+                    response: Response<SearchTrackResponse>
                 ) {
                     if (response.code() == 200) {
                         trackRepository.clear()
@@ -133,18 +170,41 @@ class SearchActivity : AppCompatActivity() {
                     } else {
                         showMessage(getString(R.string.something_went_wrong), response.code().toString())
                     }
-
                 }
 
                 override fun onFailure(call: Call<SearchTrackResponse>, t: Throwable) {
                     showConnectionError(getString(R.string.something_went_wrong), t.message.toString())
                 }
-
             })
     }
 
-    private fun showMessage(text: String, additionalMessage: String) {
+    private fun showHistoryIfNeeded() {
+        if (!inputEditText.hasFocus() || inputEditText.text.isNotEmpty()) {
+            hideHistory()
+            return
+        }
 
+        historyTrackRepository.clear()
+        historyTrackRepository.addAll(searchHistory.getHistory())
+        historyTracksAdapter.notifyDataSetChanged()
+
+        if (historyTrackRepository.isNotEmpty()) {
+            historyContainer.visibility = View.VISIBLE
+            resultRecyclerView.visibility = View.GONE
+            placeholderContainer.visibility = View.GONE
+            connectionErrorContainer.visibility = View.GONE
+        } else {
+            hideHistory()
+            resultRecyclerView.visibility = View.GONE
+        }
+    }
+
+    private fun hideHistory() {
+        historyContainer.visibility = View.GONE
+        resultRecyclerView.visibility = View.VISIBLE
+    }
+
+    private fun showMessage(text: String, additionalMessage: String) {
         if (text.isNotEmpty()) {
             placeholderContainer.visibility = View.VISIBLE
             connectionErrorContainer.visibility = View.GONE
@@ -161,7 +221,6 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showConnectionError(text: String, additionalMessage: String) {
-
         if (text.isNotEmpty()) {
             connectionErrorContainer.visibility = View.VISIBLE
             placeholderContainer.visibility = View.GONE
@@ -177,11 +236,6 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun hideKeyboard(view: View) {
-        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(view.windowToken, 0)
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(SEARCH_TEXT, searchText)
@@ -195,9 +249,6 @@ class SearchActivity : AppCompatActivity() {
 
     companion object {
         private const val SEARCH_TEXT = "SEARCH_TEXT"
+        private const val SEARCH_HISTORY_PREFERENCES = "search_history_preferences"
     }
-
 }
-
-
-
