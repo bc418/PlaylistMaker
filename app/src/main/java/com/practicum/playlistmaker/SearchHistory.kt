@@ -5,9 +5,10 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 class SearchHistory(
-    private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences,
+    private val gson: Gson
 ) {
-    private val gson = Gson()
+
 
     fun getHistory(): ArrayList<Track> {
         val json = sharedPreferences.getString(SEARCH_HISTORY_KEY, null)
