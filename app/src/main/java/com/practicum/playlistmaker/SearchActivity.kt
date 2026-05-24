@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.google.gson.Gson
 
 class SearchActivity : AppCompatActivity() {
     private var searchText: String = ""
@@ -36,7 +37,12 @@ class SearchActivity : AppCompatActivity() {
     private val trackRepository = ArrayList<Track>()
     private val historyTrackRepository = ArrayList<Track>()
 
-    private lateinit var searchHistory: SearchHistory
+    private val searchHistory: SearchHistory by lazy {
+        SearchHistory(
+            getSharedPreferences(SEARCH_HISTORY_PREFERENCES, MODE_PRIVATE),
+            Gson()
+        )
+    }
 
     private val tracksAdapter = TracksAdapter(trackRepository) { track ->
         searchHistory.addTrack(track)
@@ -53,10 +59,6 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_search)
-
-        searchHistory = SearchHistory(
-            getSharedPreferences(SEARCH_HISTORY_PREFERENCES, MODE_PRIVATE)
-        )
 
         val root = findViewById<View>(R.id.root_activity_search)
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
