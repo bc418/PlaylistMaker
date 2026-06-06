@@ -22,4 +22,7 @@
 
     <string name="button_update">Обновить</string>
 
+    <string name="search_history_title">Вы искали</string>
+    <string name="clear_history">Очистить историю</string>
+
 </resources>
