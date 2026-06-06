@@ -14,6 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PlaylistMaker">
         <activity
+            android:name=".PlayerActivity"
+            android:exported="false" />
+        <activity
             android:name=".MediaActivity"
             android:exported="false" />
         <activity
