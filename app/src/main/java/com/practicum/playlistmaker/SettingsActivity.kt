@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.Switch
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -49,12 +48,6 @@ class SettingsActivity : AppCompatActivity() {
 
         agreementButton.setOnClickListener {
             openAgreement()
-        }
-
-        val themeSwitcher = findViewById<Switch>(R.id.settings_switch)
-
-        themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
-            (applicationContext as App).switchTheme(checked)
         }
 
     }
