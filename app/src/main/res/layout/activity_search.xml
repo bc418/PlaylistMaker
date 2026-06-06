@@ -104,60 +104,6 @@
             android:layout_marginTop="16dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/historyContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            tools:visibility="visible">
-
-            <TextView
-                android:id="@+id/historyTitle"
-                style="@style/SearchTextViewStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="42dp"
-                android:gravity="center"
-                android:text="@string/search_history_title"
-                android:textSize="@dimen/text_size_19"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/historyRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constrainedHeight="true"
-                app:layout_constraintTop_toBottomOf="@id/historyTitle"
-                app:layout_constraintBottom_toTopOf="@id/clearHistoryButton"
-                app:layout_constraintVertical_chainStyle="packed"
-                app:layout_constraintVertical_bias="0" />
-
-            <Button
-                android:id="@+id/clearHistoryButton"
-                style="@style/SearchUpdateButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="24dp"
-                android:background="@drawable/bg_update_button"
-                android:backgroundTint="@null"
-                android:letterSpacing="0"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
-                android:paddingStart="18dp"
-                android:paddingEnd="18dp"
-                android:text="@string/clear_history"
-                android:textAllCaps="false"
-                app:backgroundTint="@null"
-                app:layout_constraintTop_toBottomOf="@id/historyRecyclerView"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
         <LinearLayout
             android:id="@+id/placeholderContainer"
             android:layout_width="match_parent"
@@ -166,7 +112,7 @@
             android:gravity="center"
             android:orientation="vertical"
             android:visibility="gone"
-            tools:visibility="gone">
+            tools:visibility="visible">
 
             <ImageView
                 android:id="@+id/ic_nothing_found"
