@@ -1,5 +1,6 @@
 package com.practicum.playlistmaker
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -46,11 +47,12 @@ class SearchActivity : AppCompatActivity() {
 
     private val tracksAdapter = TracksAdapter(trackRepository) { track ->
         searchHistory.addTrack(track)
+        openPlayer(track)
     }
 
     private val historyTracksAdapter = TracksAdapter(historyTrackRepository) { track ->
         searchHistory.addTrack(track)
-        showHistoryIfNeeded()
+        openPlayer(track)
     }
 
     private val trackMapper = TrackMapper()
@@ -148,6 +150,12 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    private fun openPlayer(track: Track) {
+        val intent = Intent(this, PlayerActivity::class.java)
+        intent.putExtra(PlayerActivity.TRACK_EXTRA, track)
+        startActivity(intent)
+    }
+
     private fun searchTracks(text: String) {
         hideHistory()
 
@@ -236,6 +244,11 @@ class SearchActivity : AppCompatActivity() {
         } else {
             connectionErrorContainer.visibility = View.GONE
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        showHistoryIfNeeded()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
