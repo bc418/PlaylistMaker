@@ -2,12 +2,15 @@ package com.practicum.playlistmaker
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -17,10 +20,10 @@ import androidx.core.view.updatePadding
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import com.google.gson.Gson
 
 class SearchActivity : AppCompatActivity() {
     private var searchText: String = ""
@@ -29,14 +32,22 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var placeholderContainer: View
     private lateinit var connectionErrorContainer: View
     private lateinit var updateButton: Button
+    private lateinit var progressBar: ProgressBar
 
     private lateinit var resultRecyclerView: RecyclerView
     private lateinit var historyContainer: View
 
     private val searchTrackService = RetrofitClient.searchTrackService
+    private var searchCall: Call<SearchTrackResponse>? = null
 
     private val trackRepository = ArrayList<Track>()
     private val historyTrackRepository = ArrayList<Track>()
+
+    private val handler = Handler(Looper.getMainLooper())
+    private val searchRunnable = Runnable {
+        searchTracks(inputEditText.text.toString())
+    }
+    private var isClickAllowed = true
 
     private val searchHistory: SearchHistory by lazy {
         SearchHistory(
@@ -46,13 +57,17 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private val tracksAdapter = TracksAdapter(trackRepository) { track ->
-        searchHistory.addTrack(track)
-        openPlayer(track)
+        if (clickDebounce()) {
+            searchHistory.addTrack(track)
+            openPlayer(track)
+        }
     }
 
     private val historyTracksAdapter = TracksAdapter(historyTrackRepository) { track ->
-        searchHistory.addTrack(track)
-        openPlayer(track)
+        if (clickDebounce()) {
+            searchHistory.addTrack(track)
+            openPlayer(track)
+        }
     }
 
     private val trackMapper = TrackMapper()
@@ -72,6 +87,7 @@ class SearchActivity : AppCompatActivity() {
         placeholderContainer = findViewById(R.id.placeholderContainer)
         connectionErrorContainer = findViewById(R.id.connectionErrorContainer)
         updateButton = findViewById(R.id.updateButton)
+        progressBar = findViewById(R.id.progressBar)
         historyContainer = findViewById(R.id.historyContainer)
 
         resultRecyclerView = findViewById(R.id.recyclerView)
@@ -92,10 +108,10 @@ class SearchActivity : AppCompatActivity() {
 
         clearButton.setOnClickListener {
             inputEditText.setText("")
-            trackRepository.clear()
-            tracksAdapter.notifyDataSetChanged()
+            clearSearchResults()
             placeholderContainer.visibility = View.GONE
             connectionErrorContainer.visibility = View.GONE
+            hideLoading()
             showHistoryIfNeeded()
         }
 
@@ -103,15 +119,18 @@ class SearchActivity : AppCompatActivity() {
             searchText = s?.toString() ?: ""
             clearButton.visibility = if (s.isNullOrEmpty()) View.GONE else View.VISIBLE
 
+            handler.removeCallbacks(searchRunnable)
+            searchCall?.cancel()
+            hideLoading()
             placeholderContainer.visibility = View.GONE
             connectionErrorContainer.visibility = View.GONE
 
             if (s.isNullOrEmpty()) {
-                trackRepository.clear()
-                tracksAdapter.notifyDataSetChanged()
+                clearSearchResults()
                 showHistoryIfNeeded()
             } else {
                 hideHistory()
+                searchDebounce()
             }
         }
 
@@ -125,9 +144,12 @@ class SearchActivity : AppCompatActivity() {
 
         inputEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
+                handler.removeCallbacks(searchRunnable)
                 searchTracks(inputEditText.text.toString())
+                true
+            } else {
+                false
             }
-            false
         }
 
         findViewById<Button>(R.id.clearHistoryButton).setOnClickListener {
@@ -141,6 +163,7 @@ class SearchActivity : AppCompatActivity() {
             val query = inputEditText.text.toString().trim()
             if (query.isNotEmpty()) {
                 connectionErrorContainer.visibility = View.GONE
+                handler.removeCallbacks(searchRunnable)
                 searchTracks(query)
             }
         }
@@ -150,6 +173,20 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    private fun searchDebounce() {
+        handler.removeCallbacks(searchRunnable)
+        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
+    }
+
+    private fun clickDebounce(): Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
+        }
+        return current
+    }
+
     private fun openPlayer(track: Track) {
         val intent = Intent(this, PlayerActivity::class.java)
         intent.putExtra(PlayerActivity.TRACK_EXTRA, track)
@@ -157,35 +194,73 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun searchTracks(text: String) {
+        val query = text.trim()
+        if (query.isEmpty()) {
+            return
+        }
+
         hideHistory()
+        clearSearchResults()
+        showLoading()
 
-        searchTrackService
-            .search(text)
-            .enqueue(object : Callback<SearchTrackResponse> {
-                override fun onResponse(
-                    call: Call<SearchTrackResponse>,
-                    response: Response<SearchTrackResponse>
-                ) {
-                    if (response.code() == 200) {
-                        trackRepository.clear()
-                        if (response.body()?.results?.isNotEmpty() == true) {
-                            trackRepository.addAll(response.body()?.results!!.map { trackMapper.mapToTrack(it) })
-                            tracksAdapter.notifyDataSetChanged()
-                        }
-                        if (trackRepository.isEmpty()) {
-                            showMessage(getString(R.string.nothing_found), "")
-                        } else {
-                            showMessage("", "")
-                        }
-                    } else {
-                        showMessage(getString(R.string.something_went_wrong), response.code().toString())
+        searchCall?.cancel()
+        val call = searchTrackService.search(query)
+        searchCall = call
+
+        call.enqueue(object : Callback<SearchTrackResponse> {
+            override fun onResponse(
+                call: Call<SearchTrackResponse>,
+                response: Response<SearchTrackResponse>
+            ) {
+                if (call.isCanceled) {
+                    return
+                }
+
+                hideLoading()
+                resultRecyclerView.visibility = View.VISIBLE
+
+                if (response.code() == 200) {
+                    if (response.body()?.results?.isNotEmpty() == true) {
+                        trackRepository.addAll(response.body()?.results!!.map { trackMapper.mapToTrack(it) })
+                        tracksAdapter.notifyDataSetChanged()
                     }
+
+                    if (trackRepository.isEmpty()) {
+                        showMessage(getString(R.string.nothing_found), "")
+                    } else {
+                        showMessage("", "")
+                    }
+                } else {
+                    showMessage(getString(R.string.something_went_wrong), response.code().toString())
+                }
+            }
+
+            override fun onFailure(call: Call<SearchTrackResponse>, t: Throwable) {
+                if (call.isCanceled) {
+                    return
                 }
 
-                override fun onFailure(call: Call<SearchTrackResponse>, t: Throwable) {
-                    showConnectionError(getString(R.string.something_went_wrong), t.message.toString())
-                }
-            })
+                hideLoading()
+                showConnectionError(getString(R.string.something_went_wrong), t.message.toString())
+            }
+        })
+    }
+
+    private fun clearSearchResults() {
+        trackRepository.clear()
+        tracksAdapter.notifyDataSetChanged()
+    }
+
+    private fun showLoading() {
+        progressBar.visibility = View.VISIBLE
+        resultRecyclerView.visibility = View.GONE
+        historyContainer.visibility = View.GONE
+        placeholderContainer.visibility = View.GONE
+        connectionErrorContainer.visibility = View.GONE
+    }
+
+    private fun hideLoading() {
+        progressBar.visibility = View.GONE
     }
 
     private fun showHistoryIfNeeded() {
@@ -218,12 +293,11 @@ class SearchActivity : AppCompatActivity() {
         if (text.isNotEmpty()) {
             placeholderContainer.visibility = View.VISIBLE
             connectionErrorContainer.visibility = View.GONE
-            trackRepository.clear()
-            tracksAdapter.notifyDataSetChanged()
+            resultRecyclerView.visibility = View.GONE
+            clearSearchResults()
 
             if (additionalMessage.isNotEmpty()) {
-                Toast.makeText(applicationContext, additionalMessage, Toast.LENGTH_LONG)
-                    .show()
+                Toast.makeText(applicationContext, additionalMessage, Toast.LENGTH_LONG).show()
             }
         } else {
             placeholderContainer.visibility = View.GONE
@@ -234,12 +308,11 @@ class SearchActivity : AppCompatActivity() {
         if (text.isNotEmpty()) {
             connectionErrorContainer.visibility = View.VISIBLE
             placeholderContainer.visibility = View.GONE
-            trackRepository.clear()
-            tracksAdapter.notifyDataSetChanged()
+            resultRecyclerView.visibility = View.GONE
+            clearSearchResults()
 
             if (additionalMessage.isNotEmpty()) {
-                Toast.makeText(applicationContext, additionalMessage, Toast.LENGTH_LONG)
-                    .show()
+                Toast.makeText(applicationContext, additionalMessage, Toast.LENGTH_LONG).show()
             }
         } else {
             connectionErrorContainer.visibility = View.GONE
@@ -262,8 +335,16 @@ class SearchActivity : AppCompatActivity() {
         inputEditText.setText(restoredText)
     }
 
+    override fun onDestroy() {
+        handler.removeCallbacksAndMessages(null)
+        searchCall?.cancel()
+        super.onDestroy()
+    }
+
     companion object {
         private const val SEARCH_TEXT = "SEARCH_TEXT"
         private const val SEARCH_HISTORY_PREFERENCES = "search_history_preferences"
+        private const val SEARCH_DEBOUNCE_DELAY = 2_000L
+        private const val CLICK_DEBOUNCE_DELAY = 1_000L
     }
 }
