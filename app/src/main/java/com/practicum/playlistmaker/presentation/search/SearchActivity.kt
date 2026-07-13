@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker
+package com.practicum.playlistmaker.presentation.search
 
 import android.content.Intent
 import android.os.Bundle
@@ -20,10 +20,12 @@ import androidx.core.view.updatePadding
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.practicum.playlistmaker.Creator
+import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.domain.models.Track
+import com.practicum.playlistmaker.domain.history.SearchHistoryInteractor
+import com.practicum.playlistmaker.domain.search.SearchTracksInteractor
+import com.practicum.playlistmaker.presentation.player.PlayerActivity
 
 class SearchActivity : AppCompatActivity() {
     private var searchText: String = ""
@@ -37,11 +39,16 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var resultRecyclerView: RecyclerView
     private lateinit var historyContainer: View
 
-    private val searchTrackService = RetrofitClient.searchTrackService
-    private var searchCall: Call<SearchTrackResponse>? = null
-
     private val trackRepository = ArrayList<Track>()
     private val historyTrackRepository = ArrayList<Track>()
+
+    private val searchTracksInteractor: SearchTracksInteractor by lazy {
+        Creator.provideSearchTracksInteractor()
+    }
+
+    private val searchHistoryInteractor: SearchHistoryInteractor by lazy {
+        Creator.provideSearchHistoryInteractor(this)
+    }
 
     private val handler = Handler(Looper.getMainLooper())
     private val searchRunnable = Runnable {
@@ -49,28 +56,19 @@ class SearchActivity : AppCompatActivity() {
     }
     private var isClickAllowed = true
 
-    private val searchHistory: SearchHistory by lazy {
-        SearchHistory(
-            getSharedPreferences(SEARCH_HISTORY_PREFERENCES, MODE_PRIVATE),
-            Gson()
-        )
-    }
-
     private val tracksAdapter = TracksAdapter(trackRepository) { track ->
         if (clickDebounce()) {
-            searchHistory.addTrack(track)
+            searchHistoryInteractor.addTrack(track)
             openPlayer(track)
         }
     }
 
     private val historyTracksAdapter = TracksAdapter(historyTrackRepository) { track ->
         if (clickDebounce()) {
-            searchHistory.addTrack(track)
+            searchHistoryInteractor.addTrack(track)
             openPlayer(track)
         }
     }
-
-    private val trackMapper = TrackMapper()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,7 +118,7 @@ class SearchActivity : AppCompatActivity() {
             clearButton.visibility = if (s.isNullOrEmpty()) View.GONE else View.VISIBLE
 
             handler.removeCallbacks(searchRunnable)
-            searchCall?.cancel()
+            searchTracksInteractor.cancelSearch()
             hideLoading()
             placeholderContainer.visibility = View.GONE
             connectionErrorContainer.visibility = View.GONE
@@ -153,7 +151,7 @@ class SearchActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.clearHistoryButton).setOnClickListener {
-            searchHistory.clearHistory()
+            searchHistoryInteractor.clearHistory()
             historyTrackRepository.clear()
             historyTracksAdapter.notifyDataSetChanged()
             hideHistory()
@@ -203,47 +201,24 @@ class SearchActivity : AppCompatActivity() {
         clearSearchResults()
         showLoading()
 
-        searchCall?.cancel()
-        val call = searchTrackService.search(query)
-        searchCall = call
+        searchTracksInteractor.cancelSearch()
+        searchTracksInteractor.searchTracks(query) { tracks, errorMessage ->
+            hideLoading()
 
-        call.enqueue(object : Callback<SearchTrackResponse> {
-            override fun onResponse(
-                call: Call<SearchTrackResponse>,
-                response: Response<SearchTrackResponse>
-            ) {
-                if (call.isCanceled) {
-                    return
-                }
-
-                hideLoading()
+            if (tracks != null) {
                 resultRecyclerView.visibility = View.VISIBLE
+                trackRepository.addAll(tracks)
+                tracksAdapter.notifyDataSetChanged()
 
-                if (response.code() == 200) {
-                    if (response.body()?.results?.isNotEmpty() == true) {
-                        trackRepository.addAll(response.body()?.results!!.map { trackMapper.mapToTrack(it) })
-                        tracksAdapter.notifyDataSetChanged()
-                    }
-
-                    if (trackRepository.isEmpty()) {
-                        showMessage(getString(R.string.nothing_found), "")
-                    } else {
-                        showMessage("", "")
-                    }
+                if (trackRepository.isEmpty()) {
+                    showMessage(getString(R.string.nothing_found), "")
                 } else {
-                    showMessage(getString(R.string.something_went_wrong), response.code().toString())
+                    showMessage("", "")
                 }
+            } else {
+                showConnectionError(getString(R.string.something_went_wrong), errorMessage.orEmpty())
             }
-
-            override fun onFailure(call: Call<SearchTrackResponse>, t: Throwable) {
-                if (call.isCanceled) {
-                    return
-                }
-
-                hideLoading()
-                showConnectionError(getString(R.string.something_went_wrong), t.message.toString())
-            }
-        })
+        }
     }
 
     private fun clearSearchResults() {
@@ -270,7 +245,7 @@ class SearchActivity : AppCompatActivity() {
         }
 
         historyTrackRepository.clear()
-        historyTrackRepository.addAll(searchHistory.getHistory())
+        historyTrackRepository.addAll(searchHistoryInteractor.getHistory())
         historyTracksAdapter.notifyDataSetChanged()
 
         if (historyTrackRepository.isNotEmpty()) {
@@ -337,13 +312,12 @@ class SearchActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         handler.removeCallbacksAndMessages(null)
-        searchCall?.cancel()
+        searchTracksInteractor.cancelSearch()
         super.onDestroy()
     }
 
     companion object {
         private const val SEARCH_TEXT = "SEARCH_TEXT"
-        private const val SEARCH_HISTORY_PREFERENCES = "search_history_preferences"
         private const val SEARCH_DEBOUNCE_DELAY = 2_000L
         private const val CLICK_DEBOUNCE_DELAY = 1_000L
     }

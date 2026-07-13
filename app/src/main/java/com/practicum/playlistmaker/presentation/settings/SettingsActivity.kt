@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker
+package com.practicum.playlistmaker.presentation.settings
 
 import android.content.Intent
 import android.net.Uri
@@ -12,8 +12,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import com.practicum.playlistmaker.App
+import com.practicum.playlistmaker.Creator
+import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.domain.settings.SettingsInteractor
 
 class SettingsActivity : AppCompatActivity() {
+
+    private val settingsInteractor: SettingsInteractor by lazy {
+        Creator.provideSettingsInteractor(this)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -31,7 +40,6 @@ class SettingsActivity : AppCompatActivity() {
         settingsBackButton.setOnClickListener {
             finish()
         }
-
 
         val settingsShareButton = findViewById<LinearLayout>(R.id.button_settings_share)
 
@@ -52,11 +60,12 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         val themeSwitcher = findViewById<Switch>(R.id.settings_switch)
+        themeSwitcher.isChecked = settingsInteractor.isDarkThemeEnabled()
 
-        themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
+        themeSwitcher.setOnCheckedChangeListener { _, checked ->
+            settingsInteractor.switchTheme(checked)
             (applicationContext as App).switchTheme(checked)
         }
-
     }
 
     private fun openShare() {
@@ -88,6 +97,4 @@ class SettingsActivity : AppCompatActivity() {
 
         startActivity(intent)
     }
-
-
 }
