@@ -1,6 +1,8 @@
 package com.practicum.playlistmaker
 
 import android.content.Context
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.google.gson.Gson
 import com.practicum.playlistmaker.data.mapper.TrackMapper
 import com.practicum.playlistmaker.data.network.RetrofitClient
@@ -14,6 +16,8 @@ import com.practicum.playlistmaker.domain.search.SearchTracksInteractor
 import com.practicum.playlistmaker.domain.search.SearchTracksInteractorImpl
 import com.practicum.playlistmaker.domain.settings.SettingsInteractor
 import com.practicum.playlistmaker.domain.settings.SettingsInteractorImpl
+import com.practicum.playlistmaker.presentation.search.SearchViewModel
+import com.practicum.playlistmaker.presentation.settings.SettingsViewModel
 
 object Creator {
 
@@ -27,12 +31,7 @@ object Creator {
     }
 
     fun provideSearchHistoryInteractor(context: Context): SearchHistoryInteractor {
-        val sharedPreferences = context.applicationContext.getSharedPreferences(
-            SEARCH_HISTORY_PREFERENCES,
-            Context.MODE_PRIVATE
-        )
-
-        val storage = SearchHistoryStorageImpl(sharedPreferences, Gson())
+        val storage = SearchHistoryStorageImpl(context.applicationContext, Gson())
         val repository = SearchHistoryRepositoryImpl(storage, TrackMapper())
         return SearchHistoryInteractorImpl(repository)
     }
@@ -41,5 +40,30 @@ object Creator {
         return SettingsInteractorImpl(SettingsRepositoryImpl(context.applicationContext))
     }
 
-    private const val SEARCH_HISTORY_PREFERENCES = "search_history_preferences"
+    fun provideSearchViewModelFactory(context: Context): ViewModelProvider.Factory {
+        return object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(SearchViewModel::class.java)) {
+                    return SearchViewModel(
+                        provideSearchTracksInteractor(),
+                        provideSearchHistoryInteractor(context)
+                    ) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
+        }
+    }
+
+    fun provideSettingsViewModelFactory(context: Context): ViewModelProvider.Factory {
+        return object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(SettingsViewModel::class.java)) {
+                    return SettingsViewModel(provideSettingsInteractor(context)) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
+        }
+    }
 }

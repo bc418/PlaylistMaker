@@ -12,21 +12,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.lifecycle.ViewModelProvider
 import com.practicum.playlistmaker.App
 import com.practicum.playlistmaker.Creator
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.domain.settings.SettingsInteractor
 
 class SettingsActivity : AppCompatActivity() {
 
-    private val settingsInteractor: SettingsInteractor by lazy {
-        Creator.provideSettingsInteractor(this)
-    }
+    private lateinit var viewModel: SettingsViewModel
+    private lateinit var themeSwitcher: Switch
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_settings)
+
+        viewModel = ViewModelProvider(
+            this,
+            Creator.provideSettingsViewModelFactory(applicationContext)
+        )[SettingsViewModel::class.java]
 
         val root = findViewById<View>(R.id.root_activity_settings)
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
@@ -36,36 +40,41 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         val settingsBackButton = findViewById<ImageButton>(R.id.button_settings_back)
-
         settingsBackButton.setOnClickListener {
             finish()
         }
 
         val settingsShareButton = findViewById<LinearLayout>(R.id.button_settings_share)
-
         settingsShareButton.setOnClickListener {
             openShare()
         }
 
         val supportButton = findViewById<LinearLayout>(R.id.button_settings_support)
-
         supportButton.setOnClickListener {
             openSupport()
         }
 
         val agreementButton = findViewById<LinearLayout>(R.id.button_settings_agreement)
-
         agreementButton.setOnClickListener {
             openAgreement()
         }
 
-        val themeSwitcher = findViewById<Switch>(R.id.settings_switch)
-        themeSwitcher.isChecked = settingsInteractor.isDarkThemeEnabled()
+        themeSwitcher = findViewById(R.id.settings_switch)
+
+        viewModel.state.observe(this) { state ->
+            render(state)
+        }
 
         themeSwitcher.setOnCheckedChangeListener { _, checked ->
-            settingsInteractor.switchTheme(checked)
-            (applicationContext as App).switchTheme(checked)
+            viewModel.onThemeSwitchChanged(checked)
         }
+    }
+
+    private fun render(state: SettingsState) {
+        if (themeSwitcher.isChecked != state.isDarkThemeEnabled) {
+            themeSwitcher.isChecked = state.isDarkThemeEnabled
+        }
+        (applicationContext as App).switchTheme(state.isDarkThemeEnabled)
     }
 
     private fun openShare() {
