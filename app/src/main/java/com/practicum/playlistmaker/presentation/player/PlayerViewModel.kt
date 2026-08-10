@@ -10,10 +10,12 @@ import com.practicum.playlistmaker.domain.models.Track
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class PlayerViewModel : ViewModel() {
+class PlayerViewModel(
+    private val mediaPlayer: MediaPlayer
+) : ViewModel() {
 
     private val handler = Handler(Looper.getMainLooper())
-    private var mediaPlayer: MediaPlayer? = null
+    private var isPlayerReleased = false
     private var playerState = PlayerState.DEFAULT
     private var currentTrack: Track? = null
 
@@ -22,9 +24,9 @@ class PlayerViewModel : ViewModel() {
 
     private val updateProgressRunnable = object : Runnable {
         override fun run() {
-            if (mediaPlayer?.isPlaying == true) {
+            if (mediaPlayer.isPlaying) {
                 updateScreenState(
-                    progress = formatProgress(mediaPlayer?.currentPosition ?: 0),
+                    progress = formatProgress(mediaPlayer.currentPosition),
                     isPlaying = true
                 )
                 handler.postDelayed(this, UPDATE_PROGRESS_DELAY)
@@ -71,7 +73,8 @@ class PlayerViewModel : ViewModel() {
         }
 
         runCatching {
-            mediaPlayer = MediaPlayer().apply {
+            mediaPlayer.apply {
+                isPlayerReleased = false
                 setDataSource(previewUrl)
                 setOnPreparedListener {
                     playerState = PlayerState.PREPARED
@@ -106,14 +109,14 @@ class PlayerViewModel : ViewModel() {
     }
 
     private fun startPlayer() {
-        mediaPlayer?.start()
+        mediaPlayer.start()
         playerState = PlayerState.PLAYING
         updateScreenState(isPlaying = true)
         handler.post(updateProgressRunnable)
     }
 
     private fun pausePlayer() {
-        mediaPlayer?.pause()
+        mediaPlayer.pause()
         playerState = PlayerState.PAUSED
         updateScreenState(isPlaying = false)
         handler.removeCallbacks(updateProgressRunnable)
@@ -136,8 +139,10 @@ class PlayerViewModel : ViewModel() {
 
     private fun releasePlayer() {
         handler.removeCallbacks(updateProgressRunnable)
-        mediaPlayer?.release()
-        mediaPlayer = null
+        if (!isPlayerReleased) {
+            mediaPlayer.release()
+            isPlayerReleased = true
+        }
         playerState = PlayerState.DEFAULT
     }
 

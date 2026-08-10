@@ -16,10 +16,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.core.widget.doOnTextChanged
-import androidx.lifecycle.ViewModelProvider
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.practicum.playlistmaker.Creator
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.presentation.player.PlayerActivity
@@ -38,7 +37,7 @@ class SearchActivity : AppCompatActivity() {
     private val trackRepository = ArrayList<Track>()
     private val historyTrackRepository = ArrayList<Track>()
 
-    private lateinit var viewModel: SearchViewModel
+    private val viewModel by viewModel<SearchViewModel>()
 
     private val tracksAdapter = TracksAdapter(trackRepository) { track ->
         viewModel.onTrackClicked(track)
@@ -52,11 +51,6 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_search)
-
-        viewModel = ViewModelProvider(
-            this,
-            Creator.provideSearchViewModelFactory(applicationContext)
-        )[SearchViewModel::class.java]
 
         val root = findViewById<View>(R.id.root_activity_search)
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->

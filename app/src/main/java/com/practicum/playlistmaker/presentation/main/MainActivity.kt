@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import androidx.lifecycle.ViewModelProvider
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.google.android.material.button.MaterialButton
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.presentation.media.MediaActivity
@@ -17,14 +17,12 @@ import com.practicum.playlistmaker.presentation.settings.SettingsActivity
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: MainViewModel
+    private val viewModel by viewModel<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-
-        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
         val root = findViewById<View>(R.id.root_activity_main)
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->

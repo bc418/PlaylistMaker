@@ -12,25 +12,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import androidx.lifecycle.ViewModelProvider
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.practicum.playlistmaker.App
-import com.practicum.playlistmaker.Creator
 import com.practicum.playlistmaker.R
 
 class SettingsActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: SettingsViewModel
+    private val viewModel by viewModel<SettingsViewModel>()
     private lateinit var themeSwitcher: Switch
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_settings)
-
-        viewModel = ViewModelProvider(
-            this,
-            Creator.provideSettingsViewModelFactory(applicationContext)
-        )[SettingsViewModel::class.java]
 
         val root = findViewById<View>(R.id.root_activity_settings)
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
