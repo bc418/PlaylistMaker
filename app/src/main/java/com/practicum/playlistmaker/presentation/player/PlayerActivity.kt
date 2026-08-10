@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import androidx.lifecycle.ViewModelProvider
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.practicum.playlistmaker.R
@@ -17,7 +17,7 @@ import com.practicum.playlistmaker.domain.models.Track
 
 class PlayerActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: PlayerViewModel
+    private val viewModel by viewModel<PlayerViewModel>()
     private lateinit var playButton: ImageButton
     private lateinit var playerProgress: TextView
 
@@ -27,8 +27,6 @@ class PlayerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_player)
-
-        viewModel = ViewModelProvider(this)[PlayerViewModel::class.java]
 
         val root = findViewById<View>(R.id.root_activity_player)
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->

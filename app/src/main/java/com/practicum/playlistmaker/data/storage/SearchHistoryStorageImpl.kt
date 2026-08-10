@@ -1,19 +1,14 @@
 package com.practicum.playlistmaker.data.storage
 
-import android.content.Context
+import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.practicum.playlistmaker.data.dto.TrackStorageDto
 
 class SearchHistoryStorageImpl(
-    context: Context,
+    private val sharedPreferences: SharedPreferences,
     private val gson: Gson
 ) : SearchHistoryStorage {
-
-    private val sharedPreferences = context.getSharedPreferences(
-        SEARCH_HISTORY_PREFERENCES,
-        Context.MODE_PRIVATE
-    )
 
     override fun getHistory(): ArrayList<TrackStorageDto> {
         val json = sharedPreferences.getString(SEARCH_HISTORY_KEY, null)
@@ -36,7 +31,6 @@ class SearchHistoryStorageImpl(
     }
 
     companion object {
-        private const val SEARCH_HISTORY_PREFERENCES = "search_history_preferences"
         private const val SEARCH_HISTORY_KEY = "search_history"
     }
 }
