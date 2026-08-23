@@ -1,18 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_activity_media"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorSecondary"
+    android:orientation="vertical"
     tools:context=".presentation.media.MediaActivity">
 
-    <TextView
-        android:id="@+id/message_media"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:text="Вы перешли на экран медиа"/>
+    <LinearLayout
+        style="@style/SettingsLinearLayoutStyle"
+        android:layout_height="56dp"
+        android:clickable="false"
+        android:focusable="false">
 
-</FrameLayout>
+        <ImageButton
+            android:id="@+id/button_media_back"
+            style="@style/SettingsImageViewStyle"
+            android:contentDescription="@string/media_back_button"
+            android:src="@drawable/ic_back_arrow_24" />
+
+        <TextView
+            style="@style/SettingsTextViewStyle"
+            android:layout_marginStart="@dimen/settings_padding_start"
+            android:text="@string/media_title"
+            android:textSize="@dimen/primary_text_size"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/mediaTabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="?attr/colorSecondary"
+        app:tabGravity="fill"
+        app:tabIndicatorHeight="2dp"
+        app:tabMode="fixed"
+        app:tabRippleColor="@android:color/transparent"
+        app:tabSelectedTextColor="@color/media_tab_text_color"
+        app:tabTextAppearance="@style/MediaTabTextStyle"
+        app:tabTextColor="@color/media_tab_text_color"
+        app:tabIndicator="@drawable/media_tab_indicator"
+        app:tabIndicatorFullWidth="true"
+        app:tabIndicatorGravity="bottom"
+        app:tabIndicatorColor="@color/media_tab_indicator_color"/>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/mediaViewPager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>
