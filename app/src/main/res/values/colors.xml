@@ -7,4 +7,7 @@
     <color name="YPLightGray">#E6E8EB</color>
     <color name="YPTextGray">#AEAFB4</color>
     <color name="YPBlueLight">#9FBBF3</color>
+    <color name="media_tab_indicator_color">#1A1B22</color>
+    <color name="new_playlist_button_background">#1A1B22</color>
+    <color name="new_playlist_button_text">#FFFFFF</color>
 </resources>

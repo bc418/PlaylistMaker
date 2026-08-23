@@ -38,4 +38,13 @@
     <string name="player_genre">Жанр</string>
     <string name="player_country">Страна</string>
 
+    <string name="media_title">Медиатека</string>
+    <string name="media_back_button">Назад</string>
+    <string name="favorite_tracks">Избранные треки</string>
+    <string name="playlists">Плейлисты</string>
+    <string name="new_playlist">Новый плейлист</string>
+    <string name="favorite_tracks_empty">Ваша медиатека пуста</string>
+    <string name="playlists_empty">Вы не создали\nни одного плейлиста</string>
+    <string name="empty_media_placeholder_content_description">Пустая медиатека</string>
+
 </resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="media_tab_indicator_color">#FFFFFFFF</color>
+    <color name="new_playlist_button_background">#FFFFFF</color>
+    <color name="new_playlist_button_text">#1A1B22</color>
+</resources>

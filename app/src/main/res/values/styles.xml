@@ -124,4 +124,12 @@
     </style>
 
 
+
+    <style name="MediaTabTextStyle">
+        <item name="android:fontFamily">@font/ys_display_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
 </resources>
