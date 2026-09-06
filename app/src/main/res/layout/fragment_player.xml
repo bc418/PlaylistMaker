@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_fragment_player"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSecondary"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="0dp"
+        tools:context=".presentation.player.PlayerFragment"
+        android:paddingBottom="20dp">
+
+        <LinearLayout
+            android:id="@+id/playerToolbar"
+            style="@style/SettingsLinearLayoutStyle"
+            android:layout_height="56dp"
+            android:clickable="false"
+            android:focusable="false"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <ImageButton
+                android:id="@+id/playerBackButton"
+                style="@style/SettingsImageViewStyle"
+                android:src="@drawable/ic_back_arrow_24" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/playerCover"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="26dp"
+            android:layout_marginEnd="24dp"
+            android:contentDescription="@string/player_cover"
+            android:scaleType="centerCrop"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintTop_toBottomOf="@id/playerToolbar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:src="@drawable/ic_search_placeholder_45" />
+
+        <TextView
+            android:id="@+id/playerTrackName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/ys_display_medium"
+            android:maxLines="1"
+            style="@style/PlayerTextColorStyle"
+            android:textSize="22sp"
+            app:layout_constraintStart_toStartOf="@id/playerCover"
+            app:layout_constraintEnd_toEndOf="@id/playerCover"
+            app:layout_constraintTop_toBottomOf="@id/playerCover"
+            tools:text="Yesterday (Remastered 2009)" />
+
+        <TextView
+            android:id="@+id/playerArtistName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/ys_display_medium"
+            android:maxLines="1"
+            style="@style/PlayerTextColorStyle"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/playerCover"
+            app:layout_constraintEnd_toEndOf="@id/playerCover"
+            app:layout_constraintTop_toBottomOf="@id/playerTrackName"
+            tools:text="The Beatles" />
+
+        <ImageButton
+            android:id="@+id/addToPlaylistButton"
+            android:layout_width="51dp"
+            android:layout_height="51dp"
+            android:layout_marginTop="54dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/player_add_to_playlist"
+            android:src="@drawable/ic_player_playlist_51"
+            app:layout_constraintStart_toStartOf="@id/playerCover"
+            app:layout_constraintEnd_toStartOf="@id/playButton"
+            app:layout_constraintTop_toBottomOf="@id/playerArtistName"
+            app:layout_constraintHorizontal_chainStyle="spread_inside" />
+
+        <ImageButton
+            android:id="@+id/playButton"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="30dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/player_play"
+            android:src="@drawable/ic_player_play_100"
+            app:layout_constraintStart_toEndOf="@id/addToPlaylistButton"
+            app:layout_constraintEnd_toStartOf="@id/addToFavoriteButton"
+            app:layout_constraintTop_toBottomOf="@id/playerArtistName" />
+
+        <ImageButton
+            android:id="@+id/addToFavoriteButton"
+            android:layout_width="51dp"
+            android:layout_height="51dp"
+            android:layout_marginTop="54dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/player_add_to_favorite"
+            android:src="@drawable/ic_player_favorite_51"
+            app:layout_constraintStart_toEndOf="@id/playButton"
+            app:layout_constraintEnd_toEndOf="@id/playerCover"
+            app:layout_constraintTop_toBottomOf="@id/playerArtistName" />
+
+        <TextView
+            android:id="@+id/playerProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="16dp"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/ys_display_medium"
+            android:text="@string/player_default_progress"
+            style="@style/PlayerTextColorStyle"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="@id/playButton"
+            app:layout_constraintStart_toStartOf="@id/playButton"
+            app:layout_constraintTop_toBottomOf="@id/playButton" />
+
+        <LinearLayout
+            android:id="@+id/playerDurationContainer"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_marginTop="30dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/playerProgress">
+
+            <TextView
+                android:id="@+id/playerDurationTitle"
+                style="@style/PlayerInfoTitleStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/player_duration" />
+
+            <TextView
+                android:id="@+id/playerDurationValue"
+                style="@style/PlayerInfoValueStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="5:35" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/playerAlbumContainer"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/playerDurationContainer">
+
+            <TextView
+                android:id="@+id/playerAlbumTitle"
+                style="@style/PlayerInfoTitleStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/player_album" />
+
+            <TextView
+                android:id="@+id/playerAlbumValue"
+                style="@style/PlayerInfoValueStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:gravity="end"
+                android:maxLines="1"
+                tools:text="Yesterday (Remastered 2009)" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/playerYearContainer"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/playerAlbumContainer">
+
+            <TextView
+                android:id="@+id/playerYearTitle"
+                style="@style/PlayerInfoTitleStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/player_year" />
+
+            <TextView
+                android:id="@+id/playerYearValue"
+                style="@style/PlayerInfoValueStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="1965" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/playerGenreContainer"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/playerYearContainer">
+
+            <TextView
+                android:id="@+id/playerGenreTitle"
+                style="@style/PlayerInfoTitleStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/player_genre" />
+
+            <TextView
+                android:id="@+id/playerGenreValue"
+                style="@style/PlayerInfoValueStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Rock" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/playerCountryContainer"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/playerGenreContainer">
+
+            <TextView
+                android:id="@+id/playerCountryTitle"
+                style="@style/PlayerInfoTitleStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/player_country" />
+
+            <TextView
+                android:id="@+id/playerCountryValue"
+                style="@style/PlayerInfoValueStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:gravity="end"
+                android:maxLines="1"
+                tools:text="Великобритания" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

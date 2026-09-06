@@ -1,21 +1,20 @@
 package com.practicum.playlistmaker.presentation.player
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.domain.models.Track
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class PlayerActivity : AppCompatActivity() {
+class PlayerFragment : Fragment() {
 
     private val viewModel by viewModel<PlayerViewModel>()
     private lateinit var playButton: ImageButton
@@ -23,35 +22,34 @@ class PlayerActivity : AppCompatActivity() {
 
     private var renderedTrack: Track? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_player)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return inflater.inflate(R.layout.fragment_player, container, false)
+    }
 
-        val root = findViewById<View>(R.id.root_activity_player)
-        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
-            view.updatePadding(top = statusBars.top)
-            insets
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        playButton = findViewById(R.id.playButton)
-        playerProgress = findViewById(R.id.playerProgress)
+        playButton = view.findViewById(R.id.playButton)
+        playerProgress = view.findViewById(R.id.playerProgress)
 
-        findViewById<ImageButton>(R.id.playerBackButton).setOnClickListener {
+        view.findViewById<ImageButton>(R.id.playerBackButton).setOnClickListener {
             viewModel.onBackClicked()
-            finish()
+            findNavController().popBackStack()
         }
 
         playButton.setOnClickListener {
             viewModel.onPlayButtonClicked()
         }
 
-        viewModel.screenState.observe(this) { state ->
+        viewModel.screenState.observe(viewLifecycleOwner) { state ->
             render(state)
         }
 
-        viewModel.onScreenOpened(getTrackFromIntent())
+        viewModel.onScreenOpened(getTrackFromArguments())
     }
 
     private fun render(state: PlayerScreenState) {
@@ -74,23 +72,24 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun renderTrack(track: Track) {
-        findViewById<TextView>(R.id.playerTrackName).text = track.trackName
-        findViewById<TextView>(R.id.playerArtistName).text = track.artistName
-        findViewById<TextView>(R.id.playerDurationValue).text = track.trackTime
-        findViewById<TextView>(R.id.playerGenreValue).text = track.primaryGenreName.orEmpty()
-        findViewById<TextView>(R.id.playerCountryValue).text = track.country.orEmpty()
+        val view = requireView()
+        view.findViewById<TextView>(R.id.playerTrackName).text = track.trackName
+        view.findViewById<TextView>(R.id.playerArtistName).text = track.artistName
+        view.findViewById<TextView>(R.id.playerDurationValue).text = track.trackTime
+        view.findViewById<TextView>(R.id.playerGenreValue).text = track.primaryGenreName.orEmpty()
+        view.findViewById<TextView>(R.id.playerCountryValue).text = track.country.orEmpty()
 
         setupOptionalField(
-            container = findViewById(R.id.playerAlbumContainer),
-            titleView = findViewById(R.id.playerAlbumTitle),
-            valueView = findViewById(R.id.playerAlbumValue),
+            container = view.findViewById(R.id.playerAlbumContainer),
+            titleView = view.findViewById(R.id.playerAlbumTitle),
+            valueView = view.findViewById(R.id.playerAlbumValue),
             value = track.collectionName
         )
 
         setupOptionalField(
-            container = findViewById(R.id.playerYearContainer),
-            titleView = findViewById(R.id.playerYearTitle),
-            valueView = findViewById(R.id.playerYearValue),
+            container = view.findViewById(R.id.playerYearContainer),
+            titleView = view.findViewById(R.id.playerYearTitle),
+            valueView = view.findViewById(R.id.playerYearValue),
             value = track.getReleaseYear()
         )
 
@@ -99,7 +98,7 @@ class PlayerActivity : AppCompatActivity() {
             .placeholder(R.drawable.ic_search_placeholder_45)
             .centerCrop()
             .transform(RoundedCorners(dpToPx(8)))
-            .into(findViewById(R.id.playerCover))
+            .into(view.findViewById(R.id.playerCover))
     }
 
     private fun setupOptionalField(
@@ -123,8 +122,8 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     @Suppress("DEPRECATION")
-    private fun getTrackFromIntent(): Track {
-        return intent.getSerializableExtra(TRACK_EXTRA) as Track
+    private fun getTrackFromArguments(): Track {
+        return requireArguments().getSerializable(TRACK_EXTRA) as Track
     }
 
     override fun onPause() {
@@ -136,4 +135,3 @@ class PlayerActivity : AppCompatActivity() {
         const val TRACK_EXTRA = "track"
     }
 }
-

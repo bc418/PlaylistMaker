@@ -1,12 +1,11 @@
 package com.practicum.playlistmaker.presentation.media
 
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.practicum.playlistmaker.presentation.media.favorites.FavoriteTracksFragment
 import com.practicum.playlistmaker.presentation.media.playlists.PlaylistsFragment
 
-class MediaViewPagerAdapter(activity: AppCompatActivity) : FragmentStateAdapter(activity) {
+class MediaViewPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
 
     override fun getItemCount(): Int = TAB_COUNT
 

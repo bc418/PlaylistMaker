@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_fragment_settings"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSecondary"
+    android:orientation="vertical">
+
+    <TextView
+        style="@style/SettingsTextViewStyle"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:layout_weight="0"
+        android:paddingEnd="16dp"
+        android:text="@string/button_settings"
+        android:textSize="@dimen/primary_text_size"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        style="@style/SettingsLinearLayoutStyle"
+        android:layout_marginTop="24dp"
+        android:clickable="false"
+        android:focusable="false">
+
+        <TextView
+            style="@style/SettingsTextViewStyle"
+            android:text="@string/dark_theme" />
+
+        <Switch
+            android:id="@+id/settings_switch"
+            style="@style/SettingsSwitchStyle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/button_settings_share"
+        style="@style/SettingsLinearLayoutStyle">
+
+        <TextView
+            style="@style/SettingsTextViewStyle"
+            android:text="@string/share_app" />
+
+        <ImageView
+            style="@style/SettingsImageViewStyle"
+            android:src="@drawable/ic_share_24" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/button_settings_support"
+        style="@style/SettingsLinearLayoutStyle">
+
+        <TextView
+            style="@style/SettingsTextViewStyle"
+            android:text="@string/support" />
+
+        <ImageView
+            style="@style/SettingsImageViewStyle"
+            android:src="@drawable/ic_support_24" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/button_settings_agreement"
+        style="@style/SettingsLinearLayoutStyle">
+
+        <TextView
+            style="@style/SettingsTextViewStyle"
+            android:text="@string/user_agreement" />
+
+        <ImageView
+            style="@style/SettingsImageViewStyle"
+            android:src="@drawable/ic_forward_arrow_24" />
+    </LinearLayout>
+
+</LinearLayout>

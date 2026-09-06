@@ -3,4 +3,5 @@
     <color name="media_tab_indicator_color">#FFFFFFFF</color>
     <color name="new_playlist_button_background">#FFFFFF</color>
     <color name="new_playlist_button_text">#1A1B22</color>
+    <color name="bottom_nav_divider">@color/YPLightGray</color>
 </resources>

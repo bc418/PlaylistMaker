@@ -3,72 +3,83 @@ package com.practicum.playlistmaker.presentation.settings
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.ImageButton
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Switch
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import androidx.fragment.app.Fragment
 import com.practicum.playlistmaker.App
 import com.practicum.playlistmaker.R
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsFragment : Fragment() {
 
     private val viewModel by viewModel<SettingsViewModel>()
     private lateinit var themeSwitcher: Switch
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_settings)
+    private var isThemeChanging = false
 
-        val root = findViewById<View>(R.id.root_activity_settings)
-        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
-            view.updatePadding(top = statusBars.top)
-            insets
-        }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return inflater.inflate(R.layout.fragment_settings, container, false)
+    }
 
-        val settingsBackButton = findViewById<ImageButton>(R.id.button_settings_back)
-        settingsBackButton.setOnClickListener {
-            finish()
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        val settingsShareButton = findViewById<LinearLayout>(R.id.button_settings_share)
+        val settingsShareButton = view.findViewById<LinearLayout>(R.id.button_settings_share)
         settingsShareButton.setOnClickListener {
             openShare()
         }
 
-        val supportButton = findViewById<LinearLayout>(R.id.button_settings_support)
+        val supportButton = view.findViewById<LinearLayout>(R.id.button_settings_support)
         supportButton.setOnClickListener {
             openSupport()
         }
 
-        val agreementButton = findViewById<LinearLayout>(R.id.button_settings_agreement)
+        val agreementButton = view.findViewById<LinearLayout>(R.id.button_settings_agreement)
         agreementButton.setOnClickListener {
             openAgreement()
         }
 
-        themeSwitcher = findViewById(R.id.settings_switch)
+        themeSwitcher = view.findViewById(R.id.settings_switch)
 
-        viewModel.state.observe(this) { state ->
+        viewModel.state.observe(viewLifecycleOwner) { state ->
             render(state)
-        }
-
-        themeSwitcher.setOnCheckedChangeListener { _, checked ->
-            viewModel.onThemeSwitchChanged(checked)
         }
     }
 
     private fun render(state: SettingsState) {
+        themeSwitcher.setOnCheckedChangeListener(null)
+
         if (themeSwitcher.isChecked != state.isDarkThemeEnabled) {
             themeSwitcher.isChecked = state.isDarkThemeEnabled
         }
-        (applicationContext as App).switchTheme(state.isDarkThemeEnabled)
+
+        if (!isThemeChanging) {
+            themeSwitcher.isEnabled = true
+        }
+
+        themeSwitcher.setOnCheckedChangeListener { buttonView, checked ->
+            if (isThemeChanging) {
+                return@setOnCheckedChangeListener
+            }
+
+            isThemeChanging = true
+            buttonView.isEnabled = false
+
+            viewModel.onThemeSwitchChanged(checked)
+
+            buttonView.post {
+                if (isAdded) {
+                    (requireActivity().applicationContext as App).switchTheme(checked)
+                }
+            }
+        }
     }
 
     private fun openShare() {
@@ -99,5 +110,9 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         startActivity(intent)
+    }
+
+    companion object {
+        fun newInstance() = SettingsFragment()
     }
 }
