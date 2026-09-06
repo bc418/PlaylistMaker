@@ -1,29 +1,27 @@
 package com.practicum.playlistmaker.presentation.search
 
-import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
+import androidx.core.os.bundleOf
 import androidx.core.widget.doOnTextChanged
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.domain.models.Track
-import com.practicum.playlistmaker.presentation.player.PlayerActivity
+import com.practicum.playlistmaker.presentation.player.PlayerFragment
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SearchActivity : AppCompatActivity() {
+class SearchFragment : Fragment() {
 
     private lateinit var inputEditText: EditText
     private lateinit var clearButton: ImageView
@@ -47,39 +45,33 @@ class SearchActivity : AppCompatActivity() {
         viewModel.onTrackClicked(track)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_search)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return inflater.inflate(R.layout.fragment_search, container, false)
+    }
 
-        val root = findViewById<View>(R.id.root_activity_search)
-        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
-            view.updatePadding(top = statusBars.top)
-            insets
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        placeholderContainer = findViewById(R.id.placeholderContainer)
-        connectionErrorContainer = findViewById(R.id.connectionErrorContainer)
-        updateButton = findViewById(R.id.updateButton)
-        progressBar = findViewById(R.id.progressBar)
-        historyContainer = findViewById(R.id.historyContainer)
+        placeholderContainer = view.findViewById(R.id.placeholderContainer)
+        connectionErrorContainer = view.findViewById(R.id.connectionErrorContainer)
+        updateButton = view.findViewById(R.id.updateButton)
+        progressBar = view.findViewById(R.id.progressBar)
+        historyContainer = view.findViewById(R.id.historyContainer)
 
-        resultRecyclerView = findViewById(R.id.recyclerView)
-        resultRecyclerView.layoutManager = LinearLayoutManager(this)
+        resultRecyclerView = view.findViewById(R.id.recyclerView)
+        resultRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         resultRecyclerView.adapter = tracksAdapter
 
-        val historyRecyclerView = findViewById<RecyclerView>(R.id.historyRecyclerView)
-        historyRecyclerView.layoutManager = LinearLayoutManager(this)
+        val historyRecyclerView = view.findViewById<RecyclerView>(R.id.historyRecyclerView)
+        historyRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         historyRecyclerView.adapter = historyTracksAdapter
 
-        val searchBackButton = findViewById<ImageButton>(R.id.button_search_back)
-        searchBackButton.setOnClickListener {
-            finish()
-        }
-
-        clearButton = findViewById(R.id.searchClearIcon)
-        inputEditText = findViewById(R.id.searchInputEditText)
+        clearButton = view.findViewById(R.id.searchClearIcon)
+        inputEditText = view.findViewById(R.id.searchInputEditText)
 
         clearButton.setOnClickListener {
             viewModel.onClearClicked()
@@ -102,7 +94,7 @@ class SearchActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<Button>(R.id.clearHistoryButton).setOnClickListener {
+        view.findViewById<Button>(R.id.clearHistoryButton).setOnClickListener {
             viewModel.onClearHistoryClicked()
         }
 
@@ -110,7 +102,7 @@ class SearchActivity : AppCompatActivity() {
             viewModel.onRetryClicked()
         }
 
-        viewModel.state.observe(this) { state ->
+        viewModel.state.observe(viewLifecycleOwner) { state ->
             render(state)
         }
 
@@ -141,7 +133,7 @@ class SearchActivity : AppCompatActivity() {
         historyTracksAdapter.notifyDataSetChanged()
 
         state.errorMessage?.takeIf { it.isNotEmpty() }?.let { message ->
-            Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
             viewModel.onErrorMessageShown()
         }
 
@@ -152,9 +144,10 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun openPlayer(track: Track) {
-        val intent = Intent(this, PlayerActivity::class.java)
-        intent.putExtra(PlayerActivity.TRACK_EXTRA, track)
-        startActivity(intent)
+        findNavController().navigate(
+            R.id.action_searchFragment_to_playerFragment,
+            bundleOf(PlayerFragment.TRACK_EXTRA to track)
+        )
     }
 
     override fun onResume() {
@@ -162,4 +155,3 @@ class SearchActivity : AppCompatActivity() {
         viewModel.onResume()
     }
 }
-

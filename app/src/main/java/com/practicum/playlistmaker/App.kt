@@ -8,38 +8,35 @@ import com.practicum.playlistmaker.di.repositoryModule
 import com.practicum.playlistmaker.di.viewModelModule
 import com.practicum.playlistmaker.domain.settings.SettingsInteractor
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import org.koin.core.context.startKoin
 
-class App : Application(), KoinComponent {
-
-    private val settingsInteractor: SettingsInteractor by inject()
+class App : Application() {
 
     var darkTheme = false
 
     override fun onCreate() {
         super.onCreate()
 
-        startKoin {
+        val koinApplication = startKoin {
             androidContext(this@App)
             modules(dataModule, repositoryModule, interactorModule, viewModelModule)
         }
 
+        val settingsInteractor = koinApplication.koin.get<SettingsInteractor>()
         darkTheme = settingsInteractor.isDarkThemeEnabled()
 
         switchTheme(darkTheme)
     }
 
     fun switchTheme(darkThemeEnabled: Boolean) {
-        darkTheme = darkThemeEnabled
+        val mode = if (darkThemeEnabled) {
+            AppCompatDelegate.MODE_NIGHT_YES
+        } else {
+            AppCompatDelegate.MODE_NIGHT_NO
+        }
 
-        AppCompatDelegate.setDefaultNightMode(
-            if (darkThemeEnabled) {
-                AppCompatDelegate.MODE_NIGHT_YES
-            } else {
-                AppCompatDelegate.MODE_NIGHT_NO
-            }
-        )
+        if (AppCompatDelegate.getDefaultNightMode() != mode) {
+            AppCompatDelegate.setDefaultNightMode(mode)
+        }
     }
 }

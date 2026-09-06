@@ -1,6 +1,5 @@
 package com.practicum.playlistmaker.presentation.main
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
@@ -8,16 +7,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import com.google.android.material.button.MaterialButton
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.presentation.media.MediaActivity
-import com.practicum.playlistmaker.presentation.search.SearchActivity
-import com.practicum.playlistmaker.presentation.settings.SettingsActivity
 
 class MainActivity : AppCompatActivity() {
-
-    private val viewModel by viewModel<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,38 +26,23 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        findViewById<MaterialButton>(R.id.button_settings).setOnClickListener {
-            viewModel.onSettingsClicked()
-        }
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
 
-        findViewById<MaterialButton>(R.id.button_search).setOnClickListener {
-            viewModel.onSearchClicked()
-        }
+        bottomNavigationView.setupWithNavController(navController)
+        val bottomNavDivider = findViewById<View>(R.id.bottomNavDivider)
 
-        findViewById<MaterialButton>(R.id.button_media).setOnClickListener {
-            viewModel.onMediaClicked()
-        }
-
-        viewModel.state.observe(this) { state ->
-            render(state)
-        }
-    }
-
-    private fun render(state: MainState) {
-        when (state.destination) {
-            MainDestination.SEARCH -> {
-                startActivity(Intent(this, SearchActivity::class.java))
-                viewModel.onNavigationHandled()
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            val bottomNavigationVisibility = if (destination.id == R.id.playerFragment) {
+                View.GONE
+            } else {
+                View.VISIBLE
             }
-            MainDestination.MEDIA -> {
-                startActivity(Intent(this, MediaActivity::class.java))
-                viewModel.onNavigationHandled()
-            }
-            MainDestination.SETTINGS -> {
-                startActivity(Intent(this, SettingsActivity::class.java))
-                viewModel.onNavigationHandled()
-            }
-            null -> Unit
+
+            bottomNavigationView.visibility = bottomNavigationVisibility
+            bottomNavDivider.visibility = bottomNavigationVisibility
         }
     }
 }
