@@ -1,29 +1,29 @@
 package com.practicum.playlistmaker.presentation.search
 
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.practicum.playlistmaker.domain.history.SearchHistoryInteractor
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.domain.search.SearchTracksInteractor
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class SearchViewModel(
     private val searchTracksInteractor: SearchTracksInteractor,
     private val searchHistoryInteractor: SearchHistoryInteractor
 ) : ViewModel() {
 
-    private val handler = Handler(Looper.getMainLooper())
     private var hasSearchFocus = false
     private var isClickAllowed = true
+    private var searchDebounceJob: Job? = null
+    private var searchJob: Job? = null
+    private var clickDebounceJob: Job? = null
 
     private val _state = MutableLiveData(SearchState())
     val state: LiveData<SearchState> = _state
-
-    private val searchRunnable = Runnable {
-        searchTracks(_state.value?.searchText.orEmpty())
-    }
 
     fun onScreenReady(hasFocus: Boolean) {
         hasSearchFocus = hasFocus
@@ -36,8 +36,8 @@ class SearchViewModel(
             return
         }
 
-        handler.removeCallbacks(searchRunnable)
-        searchTracksInteractor.cancelSearch()
+        searchDebounceJob?.cancel()
+        searchJob?.cancel()
 
         if (text.isBlank()) {
             _state.value = currentState.copy(
@@ -75,13 +75,13 @@ class SearchViewModel(
     }
 
     fun onKeyboardDoneClicked(text: String) {
-        handler.removeCallbacks(searchRunnable)
+        searchDebounceJob?.cancel()
         searchTracks(text)
     }
 
     fun onClearClicked() {
-        handler.removeCallbacks(searchRunnable)
-        searchTracksInteractor.cancelSearch()
+        searchDebounceJob?.cancel()
+        searchJob?.cancel()
 
         val currentState = _state.value ?: SearchState()
         _state.value = currentState.copy(
@@ -107,7 +107,7 @@ class SearchViewModel(
     }
 
     fun onRetryClicked() {
-        handler.removeCallbacks(searchRunnable)
+        searchDebounceJob?.cancel()
         searchTracks(_state.value?.searchText.orEmpty())
     }
 
@@ -136,15 +136,22 @@ class SearchViewModel(
     }
 
     private fun searchDebounce() {
-        handler.removeCallbacks(searchRunnable)
-        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
+        searchDebounceJob?.cancel()
+        searchDebounceJob = viewModelScope.launch {
+            delay(SEARCH_DEBOUNCE_DELAY)
+            searchTracks(_state.value?.searchText.orEmpty())
+        }
     }
 
     private fun clickDebounce(): Boolean {
         val current = isClickAllowed
         if (isClickAllowed) {
             isClickAllowed = false
-            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
+            clickDebounceJob?.cancel()
+            clickDebounceJob = viewModelScope.launch {
+                delay(CLICK_DEBOUNCE_DELAY)
+                isClickAllowed = true
+            }
         }
         return current
     }
@@ -168,12 +175,14 @@ class SearchViewModel(
             errorMessage = null
         )
 
-        searchTracksInteractor.cancelSearch()
-        searchTracksInteractor.searchTracks(query) { tracks, errorMessage ->
-            if (tracks != null) {
-                showSearchResults(tracks)
-            } else {
-                showConnectionError(errorMessage.orEmpty())
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            searchTracksInteractor.searchTracks(query).collect { (tracks, errorMessage) ->
+                if (tracks != null) {
+                    showSearchResults(tracks)
+                } else {
+                    showConnectionError(errorMessage.orEmpty())
+                }
             }
         }
     }
@@ -232,8 +241,9 @@ class SearchViewModel(
     }
 
     override fun onCleared() {
-        handler.removeCallbacksAndMessages(null)
-        searchTracksInteractor.cancelSearch()
+        searchDebounceJob?.cancel()
+        searchJob?.cancel()
+        clickDebounceJob?.cancel()
         super.onCleared()
     }
 

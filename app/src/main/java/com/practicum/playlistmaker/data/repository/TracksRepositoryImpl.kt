@@ -1,57 +1,35 @@
 package com.practicum.playlistmaker.data.repository
 
-import com.practicum.playlistmaker.data.dto.SearchTrackResponse
 import com.practicum.playlistmaker.data.mapper.TrackMapper
 import com.practicum.playlistmaker.data.network.SearchTrackApi
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.domain.repository.TracksRepository
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import retrofit2.HttpException
+import java.io.IOException
 
 class TracksRepositoryImpl(
     private val searchTrackApi: SearchTrackApi,
     private val trackMapper: TrackMapper
 ) : TracksRepository {
 
-    private var searchCall: Call<SearchTrackResponse>? = null
-
-    override fun searchTracks(text: String, consumer: (List<Track>?, String?) -> Unit) {
-        searchCall?.cancel()
-        val call = searchTrackApi.search(text)
-        searchCall = call
-
-        call.enqueue(object : Callback<SearchTrackResponse> {
-            override fun onResponse(
-                call: Call<SearchTrackResponse>,
-                response: Response<SearchTrackResponse>
-            ) {
-                if (call.isCanceled) {
-                    return
-                }
-
-                if (response.code() == 200) {
-                    val tracks = response.body()?.results
-                        ?.map { trackMapper.mapToTrack(it) }
-                        .orEmpty()
-                    consumer(tracks, null)
-                } else {
-                    consumer(null, response.code().toString())
-                }
-            }
-
-            override fun onFailure(call: Call<SearchTrackResponse>, t: Throwable) {
-                if (call.isCanceled) {
-                    return
-                }
-
-                consumer(null, t.message.toString())
-            }
-        })
-    }
-
-    override fun cancelSearch() {
-        searchCall?.cancel()
-        searchCall = null
-    }
+    override fun searchTracks(text: String): Flow<Pair<List<Track>?, String?>> = flow {
+        try {
+            val response = searchTrackApi.search(text)
+            val tracks = response.results.map { trackMapper.mapToTrack(it) }
+            emit(tracks to null)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: HttpException) {
+            emit(null to e.code().toString())
+        } catch (e: IOException) {
+            emit(null to e.message.orEmpty())
+        } catch (e: Exception) {
+            emit(null to e.message.orEmpty())
+        }
+    }.flowOn(Dispatchers.IO)
 }
