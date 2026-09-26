@@ -1,38 +1,28 @@
 package com.practicum.playlistmaker.presentation.player
 
 import android.media.MediaPlayer
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.practicum.playlistmaker.domain.models.Track
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class PlayerViewModel(
     private val mediaPlayer: MediaPlayer
 ) : ViewModel() {
 
-    private val handler = Handler(Looper.getMainLooper())
+    private var progressJob: Job? = null
     private var isPlayerReleased = false
     private var playerState = PlayerState.DEFAULT
     private var currentTrack: Track? = null
 
     private val _screenState = MutableLiveData(PlayerScreenState())
     val screenState: LiveData<PlayerScreenState> = _screenState
-
-    private val updateProgressRunnable = object : Runnable {
-        override fun run() {
-            if (mediaPlayer.isPlaying) {
-                updateScreenState(
-                    progress = formatProgress(mediaPlayer.currentPosition),
-                    isPlaying = true
-                )
-                handler.postDelayed(this, UPDATE_PROGRESS_DELAY)
-            }
-        }
-    }
 
     fun onScreenOpened(track: Track) {
         if (currentTrack != null) {
@@ -80,7 +70,7 @@ class PlayerViewModel(
                     playerState = PlayerState.PREPARED
                 }
                 setOnCompletionListener {
-                    handler.removeCallbacks(updateProgressRunnable)
+                    stopProgressUpdate()
                     it.seekTo(0)
                     playerState = PlayerState.PREPARED
                     updateScreenState(
@@ -89,7 +79,7 @@ class PlayerViewModel(
                     )
                 }
                 setOnErrorListener { _, _, _ ->
-                    handler.removeCallbacks(updateProgressRunnable)
+                    stopProgressUpdate()
                     playerState = PlayerState.DEFAULT
                     updateScreenState(
                         progress = PlayerScreenState.DEFAULT_PROGRESS,
@@ -112,14 +102,32 @@ class PlayerViewModel(
         mediaPlayer.start()
         playerState = PlayerState.PLAYING
         updateScreenState(isPlaying = true)
-        handler.post(updateProgressRunnable)
+        startProgressUpdate()
     }
 
     private fun pausePlayer() {
         mediaPlayer.pause()
         playerState = PlayerState.PAUSED
         updateScreenState(isPlaying = false)
-        handler.removeCallbacks(updateProgressRunnable)
+        stopProgressUpdate()
+    }
+
+    private fun startProgressUpdate() {
+        progressJob?.cancel()
+        progressJob = viewModelScope.launch {
+            while (playerState == PlayerState.PLAYING && mediaPlayer.isPlaying) {
+                updateScreenState(
+                    progress = formatProgress(mediaPlayer.currentPosition),
+                    isPlaying = true
+                )
+                delay(UPDATE_PROGRESS_DELAY)
+            }
+        }
+    }
+
+    private fun stopProgressUpdate() {
+        progressJob?.cancel()
+        progressJob = null
     }
 
     private fun updateScreenState(
@@ -138,7 +146,7 @@ class PlayerViewModel(
     }
 
     private fun releasePlayer() {
-        handler.removeCallbacks(updateProgressRunnable)
+        stopProgressUpdate()
         if (!isPlayerReleased) {
             mediaPlayer.release()
             isPlayerReleased = true
