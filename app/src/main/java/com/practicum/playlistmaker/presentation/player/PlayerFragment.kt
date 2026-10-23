@@ -18,6 +18,7 @@ class PlayerFragment : Fragment() {
 
     private val viewModel by viewModel<PlayerViewModel>()
     private lateinit var playButton: ImageButton
+    private lateinit var favoriteButton: ImageButton
     private lateinit var playerProgress: TextView
 
     private var renderedTrack: Track? = null
@@ -34,6 +35,8 @@ class PlayerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         playButton = view.findViewById(R.id.playButton)
+        favoriteButton = view.findViewById(R.id.addToFavoriteButton)
+        favoriteButton.setOnClickListener { viewModel.onFavoriteClicked() }
         playerProgress = view.findViewById(R.id.playerProgress)
 
         view.findViewById<ImageButton>(R.id.playerBackButton).setOnClickListener {
@@ -61,6 +64,10 @@ class PlayerFragment : Fragment() {
         }
 
         playerProgress.text = state.progress
+        favoriteButton.setImageResource(
+            if (state.isFavorite) R.drawable.ic_player_favorite_selected_51
+            else R.drawable.ic_player_favorite_51
+        )
 
         if (state.isPlaying) {
             playButton.setImageResource(R.drawable.ic_player_pause_100)

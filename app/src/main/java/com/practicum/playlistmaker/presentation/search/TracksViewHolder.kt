@@ -28,6 +28,7 @@ class TracksViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             .centerCrop()
             .transform(RoundedCorners(10))
             .placeholder(R.drawable.ic_search_placeholder_45)
+            .error(R.drawable.ic_search_placeholder_45)
             .into(trackArtwork)
     }
 }

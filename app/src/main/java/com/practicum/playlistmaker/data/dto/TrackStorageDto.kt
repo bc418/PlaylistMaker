@@ -9,5 +9,6 @@ data class TrackStorageDto(
     val releaseDate: String? = null,
     val primaryGenreName: String? = null,
     val country: String? = null,
-    val previewUrl: String? = null
+    val previewUrl: String? = null,
+    val trackId: Long = 0L
 )
