@@ -21,6 +21,7 @@ class SearchViewModel(
     private var searchDebounceJob: Job? = null
     private var searchJob: Job? = null
     private var clickDebounceJob: Job? = null
+    private var historyJob: Job? = null
 
     private val _state = MutableLiveData(SearchState())
     val state: LiveData<SearchState> = _state
@@ -38,6 +39,7 @@ class SearchViewModel(
 
         searchDebounceJob?.cancel()
         searchJob?.cancel()
+        historyJob?.cancel()
 
         if (text.isBlank()) {
             _state.value = currentState.copy(
@@ -82,6 +84,7 @@ class SearchViewModel(
     fun onClearClicked() {
         searchDebounceJob?.cancel()
         searchJob?.cancel()
+        historyJob?.cancel()
 
         val currentState = _state.value ?: SearchState()
         _state.value = currentState.copy(
@@ -220,19 +223,25 @@ class SearchViewModel(
             return
         }
 
-        val history = searchHistoryInteractor.getHistory()
-        _state.value = currentState.copy(
-            historyTracks = history,
-            isLoading = false,
-            showResults = false,
-            showHistory = history.isNotEmpty(),
-            showNothingFound = false,
-            showConnectionError = false,
-            errorMessage = null
-        )
+        historyJob?.cancel()
+        historyJob = viewModelScope.launch {
+            val history = searchHistoryInteractor.getHistory()
+            val latestState = _state.value ?: SearchState()
+            if (!hasSearchFocus || latestState.searchText.isNotEmpty()) return@launch
+            _state.value = latestState.copy(
+                historyTracks = history,
+                isLoading = false,
+                showResults = false,
+                showHistory = history.isNotEmpty(),
+                showNothingFound = false,
+                showConnectionError = false,
+                errorMessage = null
+            )
+        }
     }
 
     private fun hideHistory() {
+        historyJob?.cancel()
         val currentState = _state.value ?: SearchState()
         _state.value = currentState.copy(
             showHistory = false,
@@ -243,7 +252,9 @@ class SearchViewModel(
     override fun onCleared() {
         searchDebounceJob?.cancel()
         searchJob?.cancel()
+        historyJob?.cancel()
         clickDebounceJob?.cancel()
+        historyJob?.cancel()
         super.onCleared()
     }
 

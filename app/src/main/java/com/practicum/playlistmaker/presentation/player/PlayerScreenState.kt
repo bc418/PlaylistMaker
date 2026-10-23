@@ -5,7 +5,8 @@ import com.practicum.playlistmaker.domain.models.Track
 data class PlayerScreenState(
     val track: Track? = null,
     val progress: String = DEFAULT_PROGRESS,
-    val isPlaying: Boolean = false
+    val isPlaying: Boolean = false,
+    val isFavorite: Boolean = false
 ) {
     companion object {
         const val DEFAULT_PROGRESS = "00:00"

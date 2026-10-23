@@ -1,6 +1,7 @@
 package com.practicum.playlistmaker.data.repository
 
 import com.practicum.playlistmaker.data.mapper.TrackMapper
+import com.practicum.playlistmaker.data.db.AppDatabase
 import com.practicum.playlistmaker.data.network.SearchTrackApi
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.domain.repository.TracksRepository
@@ -14,13 +15,19 @@ import java.io.IOException
 
 class TracksRepositoryImpl(
     private val searchTrackApi: SearchTrackApi,
-    private val trackMapper: TrackMapper
+    private val trackMapper: TrackMapper,
+    private val database: AppDatabase
 ) : TracksRepository {
 
     override fun searchTracks(text: String): Flow<Pair<List<Track>?, String?>> = flow {
         try {
             val response = searchTrackApi.search(text)
-            val tracks = response.results.map { trackMapper.mapToTrack(it) }
+            val favoriteIds = database.favoriteTracksDao().getFavoriteTrackIds().toSet()
+            val tracks = response.results.map { dto ->
+                trackMapper.mapToTrack(dto).also { track ->
+                    track.isFavorite = track.trackId in favoriteIds
+                }
+            }
             emit(tracks to null)
         } catch (e: CancellationException) {
             throw e

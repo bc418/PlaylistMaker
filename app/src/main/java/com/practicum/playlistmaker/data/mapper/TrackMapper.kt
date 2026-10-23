@@ -17,7 +17,8 @@ class TrackMapper {
         releaseDate = dto.releaseDate,
         primaryGenreName = dto.primaryGenreName,
         country = dto.country,
-        previewUrl = dto.previewUrl
+        previewUrl = dto.previewUrl,
+        trackId = dto.trackId
     )
 
     fun mapToTrack(dto: TrackStorageDto): Track = Track(
@@ -29,8 +30,16 @@ class TrackMapper {
         releaseDate = dto.releaseDate,
         primaryGenreName = dto.primaryGenreName,
         country = dto.country,
-        previewUrl = dto.previewUrl
+        previewUrl = dto.previewUrl,
+        trackId = if (dto.trackId != 0L) dto.trackId else legacyTrackId(dto)
     )
+
+    private fun legacyTrackId(dto: TrackStorageDto): Long {
+        // Старые записи SharedPreferences не содержат trackId. Не назначаем им
+        // общий 0 — разные старые треки должны оставаться различимыми в Room.
+        val key = "${dto.trackName}|${dto.artistName}|${dto.trackTime}|${dto.artworkUrl100}"
+        return -(key.hashCode().toLong() and 0xffffffffL) - 1L
+    }
 
     fun mapToStorageDto(track: Track): TrackStorageDto = TrackStorageDto(
         trackName = track.trackName,
@@ -41,6 +50,7 @@ class TrackMapper {
         releaseDate = track.releaseDate,
         primaryGenreName = track.primaryGenreName,
         country = track.country,
-        previewUrl = track.previewUrl
+        previewUrl = track.previewUrl,
+        trackId = track.trackId
     )
 }

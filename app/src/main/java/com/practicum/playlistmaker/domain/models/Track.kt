@@ -11,7 +11,9 @@ data class Track(
     val releaseDate: String? = null,
     val primaryGenreName: String? = null,
     val country: String? = null,
-    val previewUrl: String? = null
+    val previewUrl: String? = null,
+    val trackId: Long = 0L,
+    var isFavorite: Boolean = false
 ) : Serializable {
 
     fun getCoverArtwork(): String {

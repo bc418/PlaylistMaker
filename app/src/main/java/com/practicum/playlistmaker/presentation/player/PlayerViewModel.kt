@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.practicum.playlistmaker.domain.models.Track
+import com.practicum.playlistmaker.domain.favorites.FavoriteTracksInteractor
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlinx.coroutines.Job
@@ -13,10 +14,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class PlayerViewModel(
-    private val mediaPlayer: MediaPlayer
+    private val mediaPlayer: MediaPlayer,
+    private val favoriteTracksInteractor: FavoriteTracksInteractor
 ) : ViewModel() {
 
     private var progressJob: Job? = null
+    private var favoriteUpdateJob: Job? = null
     private var isPlayerReleased = false
     private var playerState = PlayerState.DEFAULT
     private var currentTrack: Track? = null
@@ -31,11 +34,35 @@ class PlayerViewModel(
         }
 
         currentTrack = track
+        viewModelScope.launch {
+            val isFavorite = favoriteTracksInteractor.isFavorite(track.trackId)
+            if (favoriteUpdateJob?.isActive != true && currentTrack?.trackId == track.trackId) {
+                currentTrack = currentTrack?.copy(isFavorite = isFavorite)
+                updateScreenState()
+            }
+        }
         updateScreenState(
             progress = PlayerScreenState.DEFAULT_PROGRESS,
             isPlaying = false
         )
         preparePlayer(track.previewUrl.orEmpty())
+    }
+
+    fun onFavoriteClicked() {
+        val track = currentTrack ?: return
+        if (favoriteUpdateJob?.isActive == true) return
+
+        favoriteUpdateJob = viewModelScope.launch {
+            // Проверяем актуальное состояние БД даже при быстром возврате в плеер.
+            val isFavorite = favoriteTracksInteractor.isFavorite(track.trackId)
+            if (isFavorite) {
+                favoriteTracksInteractor.removeTrack(track)
+            } else {
+                favoriteTracksInteractor.addTrack(track)
+            }
+            currentTrack = track.copy(isFavorite = !isFavorite)
+            updateScreenState()
+        }
     }
 
     fun onPlayButtonClicked() {
@@ -137,7 +164,8 @@ class PlayerViewModel(
         _screenState.value = PlayerScreenState(
             track = currentTrack,
             progress = progress,
-            isPlaying = isPlaying
+            isPlaying = isPlaying,
+            isFavorite = currentTrack?.isFavorite ?: false
         )
     }
 

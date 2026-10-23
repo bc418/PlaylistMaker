@@ -2,6 +2,9 @@ package com.practicum.playlistmaker.di
 
 import android.content.Context
 import android.content.res.Configuration
+import androidx.room.Room
+import com.practicum.playlistmaker.data.db.AppDatabase
+import com.practicum.playlistmaker.data.mapper.FavoriteTrackMapper
 import com.google.gson.Gson
 import com.practicum.playlistmaker.data.mapper.TrackMapper
 import com.practicum.playlistmaker.data.network.SearchTrackApi
@@ -42,6 +45,15 @@ val dataModule = module {
     factory { Gson() }
 
     factory { TrackMapper() }
+    factory { FavoriteTrackMapper() }
+
+    single {
+        Room.databaseBuilder(
+            androidContext(),
+            AppDatabase::class.java,
+            "playlist_maker_favorites.db"
+        ).build()
+    }
 
     single<SearchHistoryStorage> {
         SearchHistoryStorageImpl(

@@ -7,7 +7,7 @@ class SearchHistoryInteractorImpl(
     private val repository: SearchHistoryRepository
 ) : SearchHistoryInteractor {
 
-    override fun getHistory(): ArrayList<Track> {
+    override suspend fun getHistory(): ArrayList<Track> {
         return repository.getHistory()
     }
 
