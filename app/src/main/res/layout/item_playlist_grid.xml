@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:paddingBottom="16dp">
+    <ImageView android:id="@+id/playlistGridCover"
+        android:background="@drawable/bg_playlist_grid_cover"
+        android:clipToOutline="true"
+        android:layout_width="0dp" android:layout_height="0dp"
+        android:contentDescription="@string/playlist_cover"
+        android:scaleType="centerCrop"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <TextView android:id="@+id/playlistGridName"
+        android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_marginTop="4dp" android:maxLines="1" android:ellipsize="end"
+        android:textColor="@color/playlist_grid_text_color" android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/playlistGridCover"
+        app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" />
+    <TextView android:id="@+id/playlistGridCount"
+        android:layout_width="0dp" android:layout_height="wrap_content"
+        android:textColor="@color/playlist_grid_text_color" android:textSize="12sp"
+        app:layout_constraintTop_toBottomOf="@id/playlistGridName"
+        app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

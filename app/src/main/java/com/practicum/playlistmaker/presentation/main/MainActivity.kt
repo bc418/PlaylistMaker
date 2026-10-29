@@ -35,7 +35,8 @@ class MainActivity : AppCompatActivity() {
         val bottomNavDivider = findViewById<View>(R.id.bottomNavDivider)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            val bottomNavigationVisibility = if (destination.id == R.id.playerFragment) {
+            val bottomNavigationVisibility = if (destination.id == R.id.playerFragment ||
+                destination.id == R.id.createPlaylistFragment) {
                 View.GONE
             } else {
                 View.VISIBLE

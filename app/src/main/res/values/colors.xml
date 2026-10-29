@@ -11,4 +11,9 @@
     <color name="new_playlist_button_background">#1A1B22</color>
     <color name="new_playlist_button_text">#FFFFFF</color>
     <color name="bottom_nav_divider">@color/YPLightGray</color>
+    <color name="playlist_grid_text_color">#1A1B22</color>
+    <color name="playlist_grid_border">#D0D2D7</color>
+    <color name="playlist_sheet_text_color">#1A1B22</color>
+    <color name="playlist_create_primary_text">#1A1B22</color>
+    <color name="playlist_dialog_button_color">#1A1B22</color>
 </resources>
