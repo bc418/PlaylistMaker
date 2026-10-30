@@ -6,6 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
+import android.widget.LinearLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
@@ -22,6 +27,7 @@ class PlayerFragment : Fragment() {
     private lateinit var playerProgress: TextView
 
     private var renderedTrack: Track? = null
+    private var sheetBehavior: BottomSheetBehavior<LinearLayout>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,6 +44,7 @@ class PlayerFragment : Fragment() {
         favoriteButton = view.findViewById(R.id.addToFavoriteButton)
         favoriteButton.setOnClickListener { viewModel.onFavoriteClicked() }
         playerProgress = view.findViewById(R.id.playerProgress)
+        setupPlaylistsSheet(view)
 
         view.findViewById<ImageButton>(R.id.playerBackButton).setOnClickListener {
             viewModel.onBackClicked()
@@ -53,6 +60,59 @@ class PlayerFragment : Fragment() {
         }
 
         viewModel.onScreenOpened(getTrackFromArguments())
+    }
+
+    private fun setupPlaylistsSheet(view: View) {
+        val bottomSheet = view.findViewById<LinearLayout>(R.id.playlistsBottomSheet)
+        val overlay = view.findViewById<View>(R.id.playlistSheetOverlay)
+        val behavior = BottomSheetBehavior.from(bottomSheet)
+        sheetBehavior = behavior
+        behavior.isHideable = true
+        behavior.skipCollapsed = true
+        behavior.state = BottomSheetBehavior.STATE_HIDDEN
+        behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+
+                if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    behavior.state = BottomSheetBehavior.STATE_HIDDEN
+                    return
+                }
+
+                overlay.visibility = if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                    View.GONE
+                } else {
+                    View.VISIBLE
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
+        })
+        val sheetAdapter = PlaylistSheetAdapter(viewModel::onPlaylistSelected)
+        view.findViewById<RecyclerView>(R.id.sheetPlaylistsRecyclerView).apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = sheetAdapter
+        }
+        viewModel.playlists.observe(viewLifecycleOwner) { sheetAdapter.submitList(it) }
+        viewModel.playlistAddResult.observe(viewLifecycleOwner) { result ->
+            if (result != null) {
+                Toast.makeText(
+                    requireContext(),
+                    getString(if (result.added) R.string.playlist_track_added else R.string.playlist_track_duplicate, result.playlistName),
+                    Toast.LENGTH_SHORT
+                ).show()
+                if (result.added) behavior.state = BottomSheetBehavior.STATE_HIDDEN
+                viewModel.onPlaylistResultHandled()
+            }
+        }
+        view.findViewById<View>(R.id.addToPlaylistButton).setOnClickListener {
+            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+        view.findViewById<View>(R.id.sheetNewPlaylistButton).setOnClickListener {
+            behavior.state = BottomSheetBehavior.STATE_HIDDEN
+            findNavController().navigate(R.id.action_global_createPlaylistFragment)
+        }
+        overlay.setOnClickListener { behavior.state = BottomSheetBehavior.STATE_HIDDEN }
     }
 
     private fun render(state: PlayerScreenState) {
@@ -131,6 +191,12 @@ class PlayerFragment : Fragment() {
     @Suppress("DEPRECATION")
     private fun getTrackFromArguments(): Track {
         return requireArguments().getSerializable(TRACK_EXTRA) as Track
+    }
+
+    override fun onDestroyView() {
+        sheetBehavior = null
+        renderedTrack = null
+        super.onDestroyView()
     }
 
     override fun onPause() {

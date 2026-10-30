@@ -52,7 +52,7 @@ val dataModule = module {
             androidContext(),
             AppDatabase::class.java,
             "playlist_maker_favorites.db"
-        ).build()
+        ).addMigrations(AppDatabase.MIGRATION_1_2).build()
     }
 
     single<SearchHistoryStorage> {

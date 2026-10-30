@@ -32,7 +32,7 @@ class MediaFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        selectedTabPosition = savedInstanceState?.getInt(SELECTED_TAB_KEY) ?: FAVORITES_TAB_POSITION
+        selectedTabPosition = savedInstanceState?.getInt(SELECTED_TAB_KEY) ?: selectedTabPosition
 
         val mediaViewPager = view.findViewById<ViewPager2>(R.id.mediaViewPager)
         val tabLayout = view.findViewById<TabLayout>(R.id.mediaTabLayout)

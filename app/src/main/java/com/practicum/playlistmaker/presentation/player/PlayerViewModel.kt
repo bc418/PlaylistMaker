@@ -7,22 +7,53 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.domain.favorites.FavoriteTracksInteractor
+import com.practicum.playlistmaker.domain.models.Playlist
+import com.practicum.playlistmaker.domain.playlists.PlaylistsInteractor
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
 
 class PlayerViewModel(
     private val mediaPlayer: MediaPlayer,
-    private val favoriteTracksInteractor: FavoriteTracksInteractor
+    private val favoriteTracksInteractor: FavoriteTracksInteractor,
+    private val playlistsInteractor: PlaylistsInteractor
 ) : ViewModel() {
 
     private var progressJob: Job? = null
     private var favoriteUpdateJob: Job? = null
+    private var playlistUpdateJob: Job? = null
     private var isPlayerReleased = false
     private var playerState = PlayerState.DEFAULT
     private var currentTrack: Track? = null
+
+    private val _playlists = MutableLiveData<List<Playlist>>(emptyList())
+    val playlists: LiveData<List<Playlist>> = _playlists
+    private val _playlistAddResult = MutableLiveData<PlaylistAddResult?>(null)
+    val playlistAddResult: LiveData<PlaylistAddResult?> = _playlistAddResult
+
+    init {
+        viewModelScope.launch {
+            playlistsInteractor.observePlaylists().collect { _playlists.value = it }
+        }
+    }
+
+    fun onPlaylistSelected(playlist: Playlist) {
+        val track = currentTrack ?: return
+        if (playlistUpdateJob?.isActive == true) return
+        if (track.trackId in playlist.trackIds) {
+            _playlistAddResult.value = PlaylistAddResult(playlist.name, false)
+            return
+        }
+        playlistUpdateJob = viewModelScope.launch {
+            val added = playlistsInteractor.addTrackToPlaylist(track, playlist.id)
+            _playlistAddResult.value = PlaylistAddResult(playlist.name, added)
+        }
+    }
+
+    fun onPlaylistResultHandled() { _playlistAddResult.value = null }
 
     private val _screenState = MutableLiveData(PlayerScreenState())
     val screenState: LiveData<PlayerScreenState> = _screenState
