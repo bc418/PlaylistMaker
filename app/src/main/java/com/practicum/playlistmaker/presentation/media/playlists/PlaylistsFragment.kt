@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -43,9 +44,9 @@ class PlaylistsFragment : Fragment() {
         val emptyText = view.findViewById<View>(R.id.playlistsPlaceholderText)
         viewModel.playlists.observe(viewLifecycleOwner) { playlists ->
             val empty = playlists.isEmpty()
-            emptyImage.visibility = if (empty) View.VISIBLE else View.GONE
-            emptyText.visibility = if (empty) View.VISIBLE else View.GONE
-            recycler.visibility = if (empty) View.GONE else View.VISIBLE
+            emptyImage.isVisible = empty
+            emptyText.isVisible = empty
+            recycler.isVisible = !empty
             adapter.submitList(playlists)
         }
     }

@@ -294,7 +294,6 @@
 
     <LinearLayout android:id="@+id/playlistsBottomSheet"
         android:layout_width="match_parent" android:layout_height="480dp"
-        android:layout_gravity="bottom"
         android:orientation="vertical"
         android:background="@drawable/bg_playlists_bottom_sheet"
         app:behavior_hideable="true" app:behavior_peekHeight="0dp"

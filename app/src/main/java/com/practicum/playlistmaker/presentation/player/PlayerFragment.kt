@@ -68,11 +68,24 @@ class PlayerFragment : Fragment() {
         val behavior = BottomSheetBehavior.from(bottomSheet)
         sheetBehavior = behavior
         behavior.isHideable = true
+        behavior.skipCollapsed = true
         behavior.state = BottomSheetBehavior.STATE_HIDDEN
         behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                overlay.visibility = if (newState == BottomSheetBehavior.STATE_HIDDEN) View.GONE else View.VISIBLE
+
+                if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    behavior.state = BottomSheetBehavior.STATE_HIDDEN
+                    return
+                }
+
+                overlay.visibility = if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                    View.GONE
+                } else {
+                    View.VISIBLE
+                }
             }
+
             override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
         })
         val sheetAdapter = PlaylistSheetAdapter(viewModel::onPlaylistSelected)

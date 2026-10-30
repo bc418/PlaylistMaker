@@ -43,7 +43,6 @@ class PlaylistGridAdapter : RecyclerView.Adapter<PlaylistGridAdapter.PlaylistVie
             Glide.with(cover).clear(cover)
 
             val coverFile = playlist.coverPath?.let(::File)
-            val padding = (16 * itemView.resources.displayMetrics.density).toInt()
 
             if (coverFile == null || !coverFile.isFile) {
                 val padding = (12 * itemView.resources.displayMetrics.density).toInt()
