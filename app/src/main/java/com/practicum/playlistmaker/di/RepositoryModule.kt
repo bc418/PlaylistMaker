@@ -1,5 +1,7 @@
 package com.practicum.playlistmaker.di
 
+import com.practicum.playlistmaker.data.repository.PlaylistsRepositoryImpl
+import com.practicum.playlistmaker.domain.repository.PlaylistsRepository
 import com.practicum.playlistmaker.data.repository.SearchHistoryRepositoryImpl
 import com.practicum.playlistmaker.data.repository.SettingsRepositoryImpl
 import com.practicum.playlistmaker.data.repository.TracksRepositoryImpl
@@ -14,6 +16,10 @@ import org.koin.dsl.module
 private const val SETTINGS_PREFERENCES = "playlist_maker_preferences"
 
 val repositoryModule = module {
+
+    single<PlaylistsRepository> {
+        PlaylistsRepositoryImpl(database = get(), gson = get(), context = get())
+    }
 
     single<TracksRepository> {
         TracksRepositoryImpl(

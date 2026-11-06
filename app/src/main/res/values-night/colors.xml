@@ -3,5 +3,10 @@
     <color name="media_tab_indicator_color">#FFFFFFFF</color>
     <color name="new_playlist_button_background">#FFFFFF</color>
     <color name="new_playlist_button_text">#1A1B22</color>
-    <color name="bottom_nav_divider">@color/YPLightGray</color>
+    <color name="bottom_nav_divider">#53565A</color>
+    <color name="playlist_grid_text_color">#FFFFFF</color>
+    <color name="playlist_grid_border">#53565A</color>
+    <color name="playlist_sheet_text_color">#FFFFFF</color>
+    <color name="playlist_create_primary_text">#FFFFFF</color>
+    <color name="playlist_dialog_button_color">#FFFFFF</color>
 </resources>

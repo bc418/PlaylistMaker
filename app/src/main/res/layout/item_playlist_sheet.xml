@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="64dp"
+    android:gravity="center_vertical" android:orientation="horizontal"
+    android:paddingStart="16dp" android:paddingEnd="16dp">
+    <ImageView android:id="@+id/sheetPlaylistCover"
+        android:layout_width="48dp" android:layout_height="48dp"
+        android:contentDescription="@string/playlist_cover"
+        android:background="@drawable/bg_playlist_sheet_cover"
+        android:textColor="@color/playlist_sheet_text_color"
+        android:clipToOutline="true"
+        android:scaleType="centerCrop"/>
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1" android:layout_marginStart="8dp"
+        android:orientation="vertical">
+        <TextView android:id="@+id/sheetPlaylistName"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnBackground" android:textSize="16sp"
+            android:maxLines="1" android:ellipsize="end" />
+        <TextView android:id="@+id/sheetPlaylistCount"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="@color/YPTextGray" android:textSize="12sp" />
+    </LinearLayout>
+</LinearLayout>

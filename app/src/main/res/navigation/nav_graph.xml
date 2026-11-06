@@ -4,6 +4,14 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/mediaFragment">
 
+    <action android:id="@+id/action_global_createPlaylistFragment"
+        app:destination="@id/createPlaylistFragment" />
+
+    <fragment
+        android:id="@+id/createPlaylistFragment"
+        android:name="com.practicum.playlistmaker.presentation.playlistcreate.CreatePlaylistFragment"
+        android:label="@string/new_playlist" />
+
     <fragment
         android:id="@+id/mediaFragment"
         android:name="com.practicum.playlistmaker.presentation.media.MediaFragment"
