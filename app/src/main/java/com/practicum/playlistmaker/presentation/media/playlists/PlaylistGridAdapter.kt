@@ -12,7 +12,7 @@ import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.domain.models.Playlist
 import java.io.File
 
-class PlaylistGridAdapter : RecyclerView.Adapter<PlaylistGridAdapter.PlaylistViewHolder>() {
+class PlaylistGridAdapter(private val onClick: (Playlist) -> Unit) : RecyclerView.Adapter<PlaylistGridAdapter.PlaylistViewHolder>() {
     private val items = mutableListOf<Playlist>()
 
     fun submitList(playlists: List<Playlist>) {
@@ -26,7 +26,11 @@ class PlaylistGridAdapter : RecyclerView.Adapter<PlaylistGridAdapter.PlaylistVie
 
     override fun getItemCount(): Int = items.size
 
-    override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) = holder.bind(items[position])
+    override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
+        val playlist = items[position]
+        holder.bind(playlist)
+        holder.itemView.setOnClickListener { onClick(playlist) }
+    }
 
     class PlaylistViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val cover = view.findViewById<ImageView>(R.id.playlistGridCover)

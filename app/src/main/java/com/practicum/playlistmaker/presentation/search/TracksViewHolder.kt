@@ -1,5 +1,6 @@
 package com.practicum.playlistmaker.presentation.search
 
+import androidx.core.content.ContextCompat
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -20,6 +21,7 @@ class TracksViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     fun bind(model: Track) {
         trackName.text = model.trackName
+        trackName.setTextColor(ContextCompat.getColor(itemView.context, R.color.playlist_detail_text))
         trackTime.text = model.trackTime
         artistName.text = model.artistName
 

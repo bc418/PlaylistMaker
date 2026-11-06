@@ -36,7 +36,8 @@ class MainActivity : AppCompatActivity() {
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             val bottomNavigationVisibility = if (destination.id == R.id.playerFragment ||
-                destination.id == R.id.createPlaylistFragment) {
+                destination.id == R.id.createPlaylistFragment ||
+                destination.id == R.id.playlistDetailFragment) {
                 View.GONE
             } else {
                 View.VISIBLE
