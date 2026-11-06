@@ -16,4 +16,8 @@
     <color name="playlist_sheet_text_color">#1A1B22</color>
     <color name="playlist_create_primary_text">#1A1B22</color>
     <color name="playlist_dialog_button_color">#1A1B22</color>
+    <color name="playlist_detail_text">#1A1B22</color>
+    <color name="playlist_detail_secondary_text">#53565A</color>
+    <color name="playlist_overlay">#80000000</color>
+    <color name="playlist_menu_count_color">#AEAFB4</color>
 </resources>

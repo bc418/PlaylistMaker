@@ -4,6 +4,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import android.content.DialogInterface
 import android.net.Uri
+import java.io.File
+import android.widget.TextView
+import com.practicum.playlistmaker.presentation.playlistdetail.PlaylistDetailFragment
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -27,6 +30,12 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class CreatePlaylistFragment : Fragment() {
     private val viewModel by viewModel<CreatePlaylistViewModel>()
     private var selectedCoverUri: String? = null
+    private var originalCoverPath: String? = null
+    private val editingPlaylistId: Long? by lazy {
+        if (arguments?.containsKey(PlaylistDetailFragment.PLAYLIST_ID) == true) {
+            requireArguments().getLong(PlaylistDetailFragment.PLAYLIST_ID)
+        } else null
+    }
     private lateinit var nameField: TextInputEditText
     private lateinit var descriptionField: TextInputEditText
     private lateinit var createButton: Button
@@ -70,6 +79,22 @@ class CreatePlaylistFragment : Fragment() {
         descriptionField.setText(savedInstanceState?.getString(KEY_DESCRIPTION).orEmpty())
         renderCover()
 
+        if (editingPlaylistId != null) {
+            view.findViewById<TextView>(R.id.createPlaylistTitle).setText(R.string.playlist_edit_title)
+            createButton.setText(R.string.playlist_save)
+            viewModel.editingPlaylist.observe(viewLifecycleOwner) { playlist ->
+                if (playlist != null) {
+                    originalCoverPath = playlist.coverPath
+                    if (savedInstanceState == null) {
+                        nameField.setText(playlist.name)
+                        descriptionField.setText(playlist.description)
+                    }
+                    renderCover()
+                }
+            }
+            viewModel.loadPlaylist(requireNotNull(editingPlaylistId))
+        }
+
         nameField.doAfterTextChanged { createButton.isEnabled = !it.isNullOrBlank() }
         createButton.isEnabled = !nameField.text.isNullOrBlank()
         coverImage.setOnClickListener {
@@ -82,16 +107,20 @@ class CreatePlaylistFragment : Fragment() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backCallback)
         view.findViewById<View>(R.id.createPlaylistBackButton).setOnClickListener { confirmExit() }
         createButton.setOnClickListener {
-            viewModel.createPlaylist(
-                nameField.text?.toString().orEmpty(),
-                descriptionField.text?.toString().orEmpty(),
-                selectedCoverUri
-            )
+            val name = nameField.text?.toString().orEmpty()
+            val description = descriptionField.text?.toString().orEmpty()
+            val playlistId = editingPlaylistId
+            if (playlistId == null) {
+                viewModel.createPlaylist(name, description, selectedCoverUri)
+            } else {
+                viewModel.savePlaylist(playlistId, name, description, selectedCoverUri)
+            }
         }
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state) {
                 CreatePlaylistState.Idle -> createButton.isEnabled = !nameField.text.isNullOrBlank()
                 CreatePlaylistState.Saving -> createButton.isEnabled = false
+                CreatePlaylistState.Saved -> findNavController().popBackStack()
                 is CreatePlaylistState.Created -> {
                     Toast.makeText(requireContext(), getString(R.string.playlist_created, state.name), Toast.LENGTH_LONG).show()
                     findNavController().popBackStack()
@@ -105,7 +134,7 @@ class CreatePlaylistFragment : Fragment() {
     }
 
     private fun renderCover() {
-        val hasCover = selectedCoverUri != null
+        val hasCover = selectedCoverUri != null || originalCoverPath != null
 
         val padding = if (hasCover) {
             0
@@ -130,8 +159,10 @@ class CreatePlaylistFragment : Fragment() {
         }
 
         if (hasCover) {
+            val source: Any = selectedCoverUri?.let(Uri::parse)
+                ?: File(requireNotNull(originalCoverPath))
             Glide.with(this)
-                .load(Uri.parse(selectedCoverUri))
+                .load(source)
                 .centerCrop()
                 .into(coverImage)
         } else {
@@ -141,6 +172,10 @@ class CreatePlaylistFragment : Fragment() {
     }
 
     private fun confirmExit() {
+        if (editingPlaylistId != null) {
+            findNavController().popBackStack()
+            return
+        }
         val dirty = !nameField.text.isNullOrEmpty() ||
                 !descriptionField.text.isNullOrEmpty() ||
                 selectedCoverUri != null

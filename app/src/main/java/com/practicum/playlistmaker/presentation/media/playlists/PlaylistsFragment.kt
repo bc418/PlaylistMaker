@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.core.os.bundleOf
+import com.practicum.playlistmaker.presentation.playlistdetail.PlaylistDetailFragment
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -26,7 +28,12 @@ class PlaylistsFragment : Fragment() {
             findNavController().navigate(R.id.action_global_createPlaylistFragment)
         }
 
-        val adapter = PlaylistGridAdapter()
+        val adapter = PlaylistGridAdapter { playlist ->
+            findNavController().navigate(
+                R.id.action_mediaFragment_to_playlistDetailFragment,
+                bundleOf(PlaylistDetailFragment.PLAYLIST_ID to playlist.id)
+            )
+        }
         val recycler = view.findViewById<RecyclerView>(R.id.playlistsRecyclerView)
         recycler.layoutManager = GridLayoutManager(requireContext(), 2)
         recycler.adapter = adapter

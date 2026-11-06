@@ -9,4 +9,7 @@
     <color name="playlist_sheet_text_color">#FFFFFF</color>
     <color name="playlist_create_primary_text">#FFFFFF</color>
     <color name="playlist_dialog_button_color">#FFFFFF</color>
+    <color name="playlist_detail_text">#FFFFFF</color>
+    <color name="playlist_detail_secondary_text">#AEAFB4</color>
+    <color name="playlist_menu_count_color">#FFFFFF</color>
 </resources>
